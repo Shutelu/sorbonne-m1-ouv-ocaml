@@ -13,20 +13,27 @@ open Int64;;
   100 mod 64 = 36 (reste)
   donc la liste [0;2^36]
 
+  //pas bon
   si 2^164 depasse 64bits
   164/64 ~ 2
   donc 164 - 64 - 64 = 36
   on a [0;0;36]
+
+  explication 2^100 = [0;2^36] ou [OL; Int64.shift_left 1L 36]
+  1L pour 1 = 2^0 
+  si on decale de 36 a gauche de 2^0 on a 2^0 * 2^36 = 2^36 
+  donc en binaire : 00000...1000000 a la position 
 *)
 
-let calcul_nb_soustraction n = n-64;;
+(* creation de struct de donnees, suffixe L*)
+type bigInteger = int64 list;;
 
 let rec prim_insertion_aux n l =
-  if n>64 then 
+  if n>63 then 
     let minus = n - 64 in 
     prim_insertion_aux minus (l @ [0])
 else 
-  l @ [n];;
+  l @ [Int64.shift_left 1L n];;
 
 (* n est la puissance de 2 : ex, 2^100 -> n=100 *)
 let prim_insertion n =  
