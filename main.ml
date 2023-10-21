@@ -1,3 +1,5 @@
+open Int64
+
 (* 将一个 int64 转换为一个 bool 列表，表示其二进制形式 *)
 let decomposition n =
   let rec aux n acc i =
@@ -131,5 +133,54 @@ let print_int64_list list =
   Printf.printf "[%s]\n" (string_of_int64_elems list);;
 
 print_int64_list composition_result;;
+
+
+
+
+open Int64
+
+(* 生成指定位数的随机正数 int64 *)
+let gen_random_int64 bits =
+  let rec aux acc bits_remaining =
+    if bits_remaining <= 0 then acc
+    else
+      (* 生成随机位并左移累加 *)
+      let bit = if Random.bool () then 1L else 0L in
+      let new_acc = logor (shift_left acc 1) bit in
+      aux new_acc (bits_remaining - 1)
+  in
+  if bits >= 64 then
+    (* 如果需要生成完整的64位数，确保最高位是1 *)
+    aux (shift_left 1L 63) 63
+  else
+    (* 否则生成少于64位的数 *)
+    aux 0L bits
+
+(* 根据 n 生成一个 int64 列表 *)
+let gen_alea n =
+  let rec aux n acc =
+    if n <= 0 then acc
+    else if n < 64 then
+      (* 对于 n < 64，生成一个最大位数为 n 的随机数 *)
+      let rand_num = gen_random_int64 n in
+      rand_num :: acc
+    else
+      (* 对于 n >= 64，生成一个64位随机数并处理剩下的位数 *)
+      let rand_num = gen_random_int64 64 in
+      aux (n - 64) (rand_num :: acc)
+  in
+  Random.self_init ();  (* 初始化随机数种子 *)
+  List.rev (aux n [])   (* 生成随机数列表并反转 *)
+
+(* 测试 gen_alea 函数 *)
+
+let ex_result = gen_alea 100;;
+  (* 打印结果 *)
+List.iter (fun i -> Printf.printf "%Ld\n" i) ex_result;;
+
+let exf_result  = process_int64_list ex_result;;
+let exff_result = string_of_bool_list exf_result;;
+
+Printf.printf "%s\n\n" exff_result;;
 
 
