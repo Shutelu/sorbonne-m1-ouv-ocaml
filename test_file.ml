@@ -50,7 +50,6 @@ let trim_list lst =
     List.rev (List.fold_left f [] lst)
 ;;
 
-
 (* Q1.2 | 
   description : decomposition de la liste entier64 en une liste boolean,
   parametre 'list' : liste de int64
@@ -71,13 +70,66 @@ let decomposition (lst:int64 list) =
 ;;
 
 
-(*======================== 
-          TEST 
-=========================*)
-(*prend un entier64 (liste) *)
-let b = [0L; Int64.shift_left 1L 36];; 
-let a = [5L];; 
-let result = decomposition b ;;
+(* ******************************************************************************************** *)
 
+(* Q1.3 | 
+  description : extension de la liste avec des false
+  parametre : count entier nombre d'ajout
+  parametre : lst liste boolean 
+  return : liste boolean avec des false (bits) en plus
+*)
+let rec extend_bool_lst count lst =
+  if count > 0 then 
+    (*ajout du false a la fin de la liste*)
+    extend_bool_lst (count-1) (lst @ [false]) 
+  else lst
+;;
+
+(* Q1.3 | 
+  description : couper la liste de count fois
+  parametre : count entier nombre de coupe
+  parametre : lst liste boolean 
+  return : liste boolean avec des bits en moins
+*)
+let rec cut_bool_lst count lst tmp_lst = 
+  match lst with 
+  |[] -> []
+  |t::q -> 
+    if count > 0 then cut_bool_lst (count-1) lst (tmp_lst @ [t])
+    else tmp_lst
+;;
+
+(* Q1.3 | 
+  description : renvoie une liste de n element
+    tronquée jusqu'a n premiers element ou completé jusqu'a n avec des false
+  parametre : bool_lst liste boolean a tronquée ou a completé
+  parametre : n entier
+  return : liste boolean tronquée ou completé de taille n
+*)
+let completion bool_lst n =
+  let taille = List.length bool_lst in
+  if n > taille then 
+    extend_bool_lst (n-taille) bool_lst
+  else if n < taille then
+    cut_bool_lst n bool_lst []
+  else 
+    bool_lst
+;;
+
+(* TEST *)
+
+let b = [0L; Int64.shift_left 1L 36];;
+let a = [38L];;
+let dec = decomposition b;;
 (*verification de la liste pour le dev*)
-List.iter (fun b -> Printf.printf "%b " b) result;
+List.iter (fun b -> Printf.printf "%b " b) dec;;
+Printf.printf "\n" ;;
+
+Printf.printf "taille de 4\n" ;;
+let comp = completion dec 4;;
+List.iter (fun b -> Printf.printf "%b " b) comp;;
+Printf.printf "\n" ;;
+Printf.printf "taille de 8\n" ;;
+let comp2 = completion dec 8;; (* 105 -> 8*)
+List.iter (fun b -> Printf.printf "%b " b) comp2;;
+Printf.printf "\n" ;;
