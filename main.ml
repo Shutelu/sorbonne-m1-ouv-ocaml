@@ -1,73 +1,48 @@
 open Int64
 
-(* Q1.2 |
-  description : utiliser par decomposition, retourne le binaire de n:int64 sous forme de liste boolean
-  paremetre n : element int64 pour obtenir le binaire
-  return : liste boolean
-*)
-let decomposition_aux n =
-  let rec aux tmp_lst currentBit =
-    if currentBit < 0 then tmp_lst
-    else 
-      (* comparaison pour ajouter soit true soit false *)
-      let result_bool = (Int64.logand n (Int64.shift_left 1L currentBit) <> 0L) in
-      aux (result_bool :: tmp_lst) (currentBit - 1)
+(* 将一个 int64 转换为一个 bool 列表，表示其二进制形式 *)
+let decomposition n =
+  let rec aux n acc i =
+    if i < 0 then acc
+    else aux n ((Int64.logand n (Int64.shift_left 1L i) <> 0L) :: acc) (i - 1)
   in
-  aux [] 63;;
+  aux n [] 63;;
 
-(* Q1.2 |
-  description : chercher l'index du dernier true dans la 'liste binaire'
-  parametre : liste a chercher
-  return : entier index
-*)
-let find_last_true_index lst =
-  let rec aux l count last_position =
-    match l with
-    | [] -> last_position
-    | h::t -> 
-        let new_position = if h then count else last_position in
-        aux t (count + 1) new_position
-  in
-  aux lst 0 (-1)
-;;
+(* 找到最后一个 true 在 bool 列表中的索引 *)
+let rec find_last_true_index lst idx last_true =
+  match lst with
+  | [] -> last_true
+  | h::t -> 
+      let new_last = if h then idx else last_true in
+      find_last_true_index t (idx + 1) new_last;;
 
-(* Q1.2 |
-  description : pour le dernier element enlever les false inutile (00000)100
-  parametre : liste a trimmer
-  return : la liste boolean sans les false inutile
-*)
+(* 裁剪列表，仅包括最后一个 true 之前的所有项（包括它） *)
 let trim_list lst =
-  let last_true_pos = find_last_true_index lst in
-  if last_true_pos = -1 then [](* pas de true *)
-  else 
-    (* on connait l'index : cree une fonction qui permet d'accumuler des bools dans un liste tant qu'on est pas au dernier true *)
-    let f tmp_lst hd = 
-      if (List.length tmp_lst) <= last_true_pos then hd::tmp_lst 
-      else tmp_lst (* rien rajouter *)
-    in
-    List.rev (List.fold_left f [] lst)
-;;
+  let last_true_pos = find_last_true_index lst 0 (-1) in
+  if last_true_pos = -1 then []
+  else List.rev (List.fold_left (fun acc h -> if (List.length acc) <= last_true_pos then h::acc else acc) [] lst);;
 
-
-(* Q1.2 | 
-  description : decomposition de la liste entier64 en une liste boolean,
-  parametre 'list' : liste de int64
-  return : liste boolean
-*)
-let decomposition (lst:int64 list) =
-  let rec aux l tmp_lst =
-    (* on prend le binaire de chaque element sous forme de liste boolean *)
-    let binaire = decomposition_aux (List.hd l) in
-
-    match l with 
-    |[] -> []
-    (* special case pour le dernier element *)
-    |[_] -> tmp_lst @ (trim_list binaire)
-    |tete::reste -> aux reste (tmp_lst @ binaire)
+(* 处理 int64 list，并按指定格式打印 *)
+let process_int64_list (int64_list: int64 list) =
+  let list_length = List.length int64_list in
+  let process_single_int64 i n =  
+    let bits = decomposition n in
+    (* 如果这不是列表中的最后一个元素，则打印完整的列表，否则我们裁剪列表 *)
+    let final_bits = if i < list_length - 1 then bits else trim_list bits in
+    final_bits
   in
-  aux lst []
-;;
+  let result_list = List.mapi process_single_int64 int64_list in
+  List.flatten result_list;;
 
+(* 将 bool 列表转换为字符串表示 *)
+let string_of_bool_list lst =
+  let rec aux lst acc =
+    match lst with
+    | [] -> acc ^ "]"
+    | [h] -> acc ^ (string_of_bool h) ^ "]"
+    | h::t -> aux t (acc ^ (string_of_bool h) ^ "; ")
+  in
+  aux lst "[";;
 
 
   (* 定义 completion 函数 *)
@@ -203,7 +178,6 @@ List.iter (fun i -> Printf.printf "%Ld\n" i) ex_result;;
 let exf_result  = process_int64_list ex_result;;
 let exff_result = string_of_bool_list exf_result;;
 
-<<<<<<< HEAD
 Printf.printf "%s\n\n" exff_result;;
 
 Printf.printf "%s\n\n" "Arbre : ";;
@@ -278,6 +252,3 @@ let rec liste_feuilles tree =
   let new_list = liste_feuilles tree;;
   
 
-=======
-Printf.printf "%s\n\n" exff_result;;
->>>>>>> 6ab8b016779eec9a967344d8591bac7739c9634c
