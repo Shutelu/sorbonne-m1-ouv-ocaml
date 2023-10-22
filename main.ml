@@ -1,76 +1,60 @@
 open Int64
 
-(* Q1.2 |
-  description : utiliser par decomposition, retourne le binaire de n:int64 sous forme de liste boolean
-  paremetre n : element int64 pour obtenir le binaire
-  return : liste boolean
-*)
-let decomposition_aux n =
-  let rec aux tmp_lst currentBit =
-    if currentBit < 0 then tmp_lst
-    else 
-      (* comparaison pour ajouter soit true soit false *)
-      let result_bool = (Int64.logand n (Int64.shift_left 1L currentBit) <> 0L) in
-      aux (result_bool :: tmp_lst) (currentBit - 1)
-  in
-  aux [] 63;;
+(*********)
+(*Ex 1.2*)
+(*********)
 
-(* Q1.2 |
-  description : chercher l'index du dernier true dans la 'liste binaire'
-  parametre : liste a chercher
-  return : entier index
-*)
-let find_last_true_index lst =
-  let rec aux l count last_position =
-    match l with
-    | [] -> last_position
-    | h::t -> 
-        let new_position = if h then count else last_position in
-        aux t (count + 1) new_position
+(* 将一个 int64 转换为一个 bool 列表，表示其二进制形式 *)
+let decomposition n =
+  let rec aux n acc i =
+    if i < 0 then acc
+    else aux n ((Int64.logand n (Int64.shift_left 1L i) <> 0L) :: acc) (i - 1)
   in
-  aux lst 0 (-1)
-;;
+  aux n [] 63;;
 
-(* Q1.2 |
-  description : pour le dernier element enlever les false inutile (00000)100
-  parametre : liste a trimmer
-  return : la liste boolean sans les false inutile
-*)
+(* 找到最后一个 true 在 bool 列表中的索引 *)
+let rec find_last_true_index lst idx last_true =
+  match lst with
+  | [] -> last_true
+  | h::t -> 
+      let new_last = if h then idx else last_true in
+      find_last_true_index t (idx + 1) new_last;;
+
+(* 裁剪列表，仅包括最后一个 true 之前的所有项（包括它） *)
 let trim_list lst =
-  let last_true_pos = find_last_true_index lst in
-  if last_true_pos = -1 then [](* pas de true *)
-  else 
-    (* on connait l'index : cree une fonction qui permet d'accumuler des bools dans un liste tant qu'on est pas au dernier true *)
-    let f tmp_lst hd = 
-      if (List.length tmp_lst) <= last_true_pos then hd::tmp_lst 
-      else tmp_lst (* rien rajouter *)
-    in
-    List.rev (List.fold_left f [] lst)
-;;
+  let last_true_pos = find_last_true_index lst 0 (-1) in
+  if last_true_pos = -1 then []
+  else List.rev (List.fold_left (fun acc h -> if (List.length acc) <= last_true_pos then h::acc else acc) [] lst);;
 
-
-(* Q1.2 | 
-  description : decomposition de la liste entier64 en une liste boolean,
-  parametre 'list' : liste de int64
-  return : liste boolean
-*)
-let decomposition (lst:int64 list) =
-  let rec aux l tmp_lst =
-    (* on prend le binaire de chaque element sous forme de liste boolean *)
-    let binaire = decomposition_aux (List.hd l) in
-
-    match l with 
-    |[] -> []
-    (* special case pour le dernier element *)
-    |[_] -> tmp_lst @ (trim_list binaire)
-    |tete::reste -> aux reste (tmp_lst @ binaire)
+(* 处理 int64 list，并按指定格式打印 *)
+let process_int64_list (int64_list: int64 list) =
+  let list_length = List.length int64_list in
+  let process_single_int64 i n =  
+    let bits = decomposition n in
+    (* 如果这不是列表中的最后一个元素，则打印完整的列表，否则我们裁剪列表 *)
+    let final_bits = if i < list_length - 1 then bits else trim_list bits in
+    final_bits
   in
-  aux lst []
-;;
+  let result_list = List.mapi process_single_int64 int64_list in
+  List.flatten result_list;;
+
+(* 将 bool 列表转换为字符串表示 *)
+let string_of_bool_list lst =
+  let rec aux lst acc =
+    match lst with
+    | [] -> acc ^ "]"
+    | [h] -> acc ^ (string_of_bool h) ^ "]"
+    | h::t -> aux t (acc ^ (string_of_bool h) ^ "; ")
+  in
+  aux lst "[";;
 
 
 
-  (* 定义 completion 函数 *)
+(**********)
+(* Ex 1.3 *)
+(**********)
+
+(* 定义 completion 函数 *)
 let completion bool_list n =
   (* 获取列表长度 *)
   let list_length = List.length bool_list in
@@ -112,6 +96,10 @@ Printf.printf "%s\n\n" nnew_result;;
 let more_result = completion result 105;;
 let mmore_result = string_of_bool_list more_result;;
 Printf.printf "%s\n\n" mmore_result;;
+
+(**********)
+(* Ex 1.4 *)
+(**********)
 
 (* 定义 split_at 函数 *)
 let split_at (lst : 'a list) (n : int) : 'a list * 'a list =
@@ -160,9 +148,9 @@ let print_int64_list list =
 print_int64_list composition_result;;
 
 
-
-
-open Int64
+(******************)
+(* Ex 1.5 & Ex 1.6*)
+(******************)
 
 (* 生成指定位数的随机正数 int64 *)
 let gen_random_int64 bits =
@@ -207,3 +195,85 @@ let exf_result  = process_int64_list ex_result;;
 let exff_result = string_of_bool_list exf_result;;
 
 Printf.printf "%s\n\n" exff_result;;
+
+Printf.printf "%s\n\n" "Arbre : ";;
+
+
+
+(* Ex 2.7 *)
+type arbre =
+  | Noeud of int * arbre * arbre
+  | Feuille of bool
+
+
+(* Ex2.8 *)
+let rec take l n =    (*取出前n个值*)
+  match l with
+  | [] -> []
+  | h::t -> if n = 0 then [] else h :: take t (n-1)
+
+
+let rec drop l n =  (*扔掉前n个值*)
+  match l with
+  | [] -> []
+  | h::t -> if n = 0 then l else drop t (n-1)
+
+let rec cons_arbre liste =
+  let rec aux l depth =
+    let n = List.length l in
+    if n = 1 then 
+      Feuille (List.hd l)
+    else
+      let mid = n / 2 in
+      let left_list = take l mid in
+      let right_list = drop l mid in
+      Noeud(depth, aux left_list (depth+1), aux right_list (depth+1))
+  in
+  let next_power_of_two = 
+    int_of_float (2.0 ** (ceil (log (float_of_int (List.length liste)) /. log 2.0))) in
+  let full_list = completion liste next_power_of_two in
+  aux full_list 1
+  
+
+
+
+(*以下两个函数为打印函数，仅用于检查树是否构建正确*)
+let liste = [true; true; false; true; false; false; true; false; true; false]
+let tree = cons_arbre liste
+
+let rec print_arbre = function
+  | Feuille b -> Printf.printf "Feuille(%B) " b
+  | Noeud(n, left, right) -> 
+      Printf.printf "Noeud(%d) (" n;
+      print_arbre left;
+      Printf.printf ") (";
+      print_arbre right;
+      Printf.printf ")";;
+
+let rec print_arbre_with_indent tree indent =
+  match tree with
+  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent b
+  | Noeud(n, left, right) ->
+      Printf.printf "%sNoeud(%d)\n" indent n;
+      print_arbre_with_indent left (indent ^ "  ");
+      print_arbre_with_indent right (indent ^ "  ")
+
+let print_arbre tree = print_arbre_with_indent tree "";;
+      
+
+
+
+print_arbre tree;
+
+Printf.printf "\n";;
+
+(* Ex 2.9 *)
+let rec liste_feuilles tree =
+  match tree with
+  | Feuille b -> [b]
+  | Noeud(_, left, right) -> (liste_feuilles left) @ (liste_feuilles right);;
+
+let () =
+  let result = liste_feuilles tree in
+  List.iter (fun b -> Printf.printf "%B " b) result;
+  print_newline()
