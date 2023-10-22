@@ -136,9 +136,6 @@ print_int64_list composition_result;;
 
 
 
-
-open Int64
-
 (* 生成指定位数的随机正数 int64 *)
 let gen_random_int64 bits =
   let rec aux acc bits_remaining =
@@ -183,4 +180,75 @@ let exff_result = string_of_bool_list exf_result;;
 
 Printf.printf "%s\n\n" exff_result;;
 
+Printf.printf "%s\n\n" "Arbre : ";;
+
+(* Ex 2.7 *)
+type arbre =
+  | Noeud of int * arbre * arbre
+  | Feuille of bool
+
+let rec take l n =    (*取出前n个值*)
+  match l with
+  | [] -> []
+  | h::t -> if n = 0 then [] else h :: take t (n-1)
+
+
+let rec drop l n =  (*扔掉前n个值*)
+  match l with
+  | [] -> []
+  | h::t -> if n = 0 then l else drop t (n-1)
+
+let rec cons_arbre liste =
+  let rec aux l depth =
+    let n = List.length l in
+    if n = 1 then 
+      Feuille (List.hd l)
+    else
+      let mid = n / 2 in
+      let left_list = take l mid in
+      let right_list = drop l mid in
+      Noeud(depth, aux left_list (depth+1), aux right_list (depth+1))
+  in
+  let next_power_of_two = 
+    int_of_float (2.0 ** (ceil (log (float_of_int (List.length liste)) /. log 2.0))) in
+  let full_list = completion liste next_power_of_two in
+  aux full_list 1
+  
+
+let liste = [true; true; false; true; false; false; true; false; true; false]
+let tree = cons_arbre liste
+
+let rec print_arbre = function
+  | Feuille b -> Printf.printf "Feuille(%B) " b
+  | Noeud(n, left, right) -> 
+      Printf.printf "Noeud(%d) (" n;
+      print_arbre left;
+      Printf.printf ") (";
+      print_arbre right;
+      Printf.printf ")";;
+
+let rec print_arbre_with_indent tree indent =
+  match tree with
+  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent b
+  | Noeud(n, left, right) ->
+      Printf.printf "%sNoeud(%d)\n" indent n;
+      print_arbre_with_indent left (indent ^ "  ");
+      print_arbre_with_indent right (indent ^ "  ")
+
+let print_arbre tree = print_arbre_with_indent tree "";;
+      
+
+
+
+print_arbre tree;
+
+Printf.printf "\n";
+
+let rec liste_feuilles tree =
+  match tree with
+  | Feuille b -> [b]
+  | Noeud(_, left, right) -> (liste_feuilles left) @ (liste_feuilles right);;
+
+  let new_list = liste_feuilles tree;;
+  
 
