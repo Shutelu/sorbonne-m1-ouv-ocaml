@@ -1,5 +1,9 @@
 open Int64
 
+(*********)
+(*Ex 1.2*)
+(*********)
+
 (* 将一个 int64 转换为一个 bool 列表，表示其二进制形式 *)
 let decomposition n =
   let rec aux n acc i =
@@ -45,7 +49,12 @@ let string_of_bool_list lst =
   aux lst "[";;
 
 
-  (* 定义 completion 函数 *)
+
+(**********)
+(* Ex 1.3 *)
+(**********)
+
+(* 定义 completion 函数 *)
 let completion bool_list n =
   (* 获取列表长度 *)
   let list_length = List.length bool_list in
@@ -87,6 +96,10 @@ Printf.printf "%s\n\n" nnew_result;;
 let more_result = completion result 105;;
 let mmore_result = string_of_bool_list more_result;;
 Printf.printf "%s\n\n" mmore_result;;
+
+(**********)
+(* Ex 1.4 *)
+(**********)
 
 (* 定义 split_at 函数 *)
 let split_at (lst : 'a list) (n : int) : 'a list * 'a list =
@@ -135,6 +148,9 @@ let print_int64_list list =
 print_int64_list composition_result;;
 
 
+(******************)
+(* Ex 1.5 & Ex 1.6*)
+(******************)
 
 (* 生成指定位数的随机正数 int64 *)
 let gen_random_int64 bits =
@@ -182,11 +198,15 @@ Printf.printf "%s\n\n" exff_result;;
 
 Printf.printf "%s\n\n" "Arbre : ";;
 
+
+
 (* Ex 2.7 *)
 type arbre =
   | Noeud of int * arbre * arbre
   | Feuille of bool
 
+
+(* Ex2.8 *)
 let rec take l n =    (*取出前n个值*)
   match l with
   | [] -> []
@@ -215,6 +235,9 @@ let rec cons_arbre liste =
   aux full_list 1
   
 
+
+
+(*以下两个函数为打印函数，仅用于检查树是否构建正确*)
 let liste = [true; true; false; true; false; false; true; false; true; false]
 let tree = cons_arbre liste
 
@@ -242,13 +265,15 @@ let print_arbre tree = print_arbre_with_indent tree "";;
 
 print_arbre tree;
 
-Printf.printf "\n";
+Printf.printf "\n";;
 
+(* Ex 2.9 *)
 let rec liste_feuilles tree =
   match tree with
   | Feuille b -> [b]
   | Noeud(_, left, right) -> (liste_feuilles left) @ (liste_feuilles right);;
 
-  let new_list = liste_feuilles tree;;
-  
-
+let () =
+  let result = liste_feuilles tree in
+  List.iter (fun b -> Printf.printf "%B " b) result;
+  print_newline()
