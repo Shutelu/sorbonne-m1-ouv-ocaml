@@ -165,6 +165,8 @@ let composition bool_lst : int64 list =
   List.map bool_list_to_int64 list_of_boollist
 ;;
 
+(* ******************************************************************************************** *)
+
 (* Q1.5 |
   description : table de verité, prendre un entier64 'x', le decompose en base 2, le complete pour faire la taille n
   param x : entier64 (int64 list)
@@ -172,8 +174,6 @@ let composition bool_lst : int64 list =
   return : liste boolean (la table de verité)
 *)
 let table x n = completion (decomposition x) n;;
-
-(* ******************************************************************************************** *)
 
 (* TEST *)
 
