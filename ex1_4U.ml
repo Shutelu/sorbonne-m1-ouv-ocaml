@@ -73,9 +73,6 @@ let decomposition (lst:int64 list) =
   aux lst []
 ;;
 
-
-(* ******************************************************************************************** *)
-
 (* Q1.3 | 
   description : extension de la liste avec des false
   parametre : count entier nombre d'ajout
@@ -120,6 +117,56 @@ let completion bool_lst n =
     bool_lst
 ;;
 
+(* ******************************************************************************************** *)
+
+(* Q1.4 |
+  description : transforme une liste boolean en entier64
+  param : bool_lst liste boolean
+  return : entier64 representer dans la liste
+*)
+let bool_list_to_int64 bool_lst =
+  let reversed_lst = List.rev bool_lst in (* mettre a l'endroit *)
+  (* le 1er 1 lance la procedure de decalage ensuite si true on fait +1 sinon +0 dans tout les cas on decale donc 2^n *)
+  List.fold_left (fun acc b -> Int64.(add (shift_left acc 1) (if b then 1L else 0L))) 0L reversed_lst;;
+
+(* Q1.4 |
+  description : prend une liste de boolean, decoupe la liste jusqu'a obtenir une liste de 64 boolean et retourne la sous liste et le reste
+  param : lst liste a decouper
+  return : si taille de lst <64 la meme liste, sinon une liste de 64 element, et reste de lst
+*)
+let split_list_by64 lst =
+  let rec aux l tmp_lst count =
+    match l with
+    |[]->(List.rev tmp_lst, l) (* soit taille lst < 64 *)
+    |t::reste -> 
+      if count = 0 then (List.rev tmp_lst, l) (* soit taille lst > 64 *)
+      else aux reste (t::tmp_lst) (count-1)
+  in
+  aux lst [] 64
+;;
+
+(* Q1.4 |
+  description : prend une liste de boolean et renvoie une liste de liste decouper si possible en taille 64 ex :[1;0;1] -> [[1];[0];[1]]
+  param : lst liste boolean
+  return : une liste de sous liste boolean
+*)
+let rec split_list_to_sublists lst =
+  if lst = [] then []
+  else 
+    let (sous_lst, reste_lst) = split_list_by64 lst in
+    sous_lst :: split_list_to_sublists reste_lst
+;;
+
+(* Q1.4 | 
+  description : prend une liste de bits (bool) et contruction l'entier qui le represente 
+  param : une liste de boolean qui represente un nb binaire
+  return : entier que le binaire represente sous forme de int64 list
+*)
+let composition para_list : int64 list =
+  let list_of_boollist = split_list_to_sublists para_list in
+  List.map bool_list_to_int64 list_of_boollist
+;;
+
 (* TEST *)
 
 let b = [0L; Int64.shift_left 1L 36];;
@@ -129,11 +176,17 @@ let dec = decomposition b;;
 List.iter (fun b -> Printf.printf "%b " b) dec;;
 Printf.printf "\n" ;;
 
-Printf.printf "taille de 4\n" ;;
-let comp = completion dec 4;;
-List.iter (fun b -> Printf.printf "%b " b) comp;;
+let composition_result = composition dec;;
+List.iter (fun i -> Printf.printf "%Ld " i) composition_result;;
 Printf.printf "\n" ;;
-Printf.printf "taille de 8\n" ;;
-let comp2 = completion dec 8;; (* 105 -> 8*)
-List.iter (fun b -> Printf.printf "%b " b) comp2;;
-Printf.printf "\n" ;;
+
+(* pour le dev *)
+let print_int64_list list =
+  let string_of_int64_elems elems =
+    let strs = List.map (fun i -> Printf.sprintf "%Ld" i) elems in
+    String.concat "; " strs
+  in
+  Printf.printf "on obtient : [%s]\n" (string_of_int64_elems list);;
+
+print_int64_list composition_result;;
+

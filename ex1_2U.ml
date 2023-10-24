@@ -1,6 +1,10 @@
 open Int64;;
 
+(* Q1.1 *)
 type bigInteger = int64 list;;
+let prim_insertion lst e = lst @ [e];;
+let prim_reccup lst = List.hd lst;;
+let prim_supp lst = List.tl lst;;
 
 (* Q1.2 |
   description : utiliser par decomposition, retourne le binaire de n:int64 sous forme de liste boolean
