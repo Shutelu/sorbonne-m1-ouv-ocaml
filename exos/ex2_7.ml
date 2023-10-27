@@ -194,7 +194,7 @@ let genAlea n =
 
 (* Q2.7*)
 type arbre =
-  | Noeud of arbre* int * arbre
+  | Noeud of int * arbre * arbre
   | Feuille of bool
 
 (* 测试 gen_alea 函数 *)
