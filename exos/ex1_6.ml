@@ -96,7 +96,7 @@ let rec cut_bool_lst count lst tmp_lst =
   match lst with 
   |[] -> []
   |t::q -> 
-    if count > 0 then cut_bool_lst (count-1) lst (tmp_lst @ [t])
+    if count > 0 then cut_bool_lst (count-1) q (tmp_lst @ [t])
     else tmp_lst
 ;;
 
@@ -116,8 +116,6 @@ let completion bool_lst n =
   else 
     bool_lst
 ;;
-
-(* ******************************************************************************************** *)
 
 (* Q1.4 |
   description : transforme une liste boolean en entier64
@@ -167,20 +165,93 @@ let composition bool_lst : int64 list =
   List.map bool_list_to_int64 list_of_boollist
 ;;
 
+(* Q1.5 |
+  description : table de verité, prendre un entier64 'x', le decompose en base 2, le complete pour faire la taille n
+  param x : entier64 (int64 list)
+  param n : taille qu'aura la table de verité
+  return : liste boolean (la table de verité)
+*)
+let table x n = completion (decomposition x) n;;
+
+(* ******************************************************************************************** *)
+
+(* 生成指定位数的随机正数 int64 *)
+let gen_random_int64 bits =
+  let rec aux acc bits_remaining =
+    if bits_remaining <= 0 then acc
+    else
+      (* 生成随机位并左移累加 *)
+      let bit = if Random.bool () then 1L else 0L in
+      let new_acc = logor (shift_left acc 1) bit in
+      aux new_acc (bits_remaining - 1)
+  in
+  if bits >= 64 then
+    (* 如果需要生成完整的64位数，确保最高位是1 *)
+    aux (shift_left 1L 63) 63
+  else
+    (* 否则生成少于64位的数 *)
+    aux 0L bits
+
+(* 根据 n 生成一个 int64 列表 *)
+let gen_alea n =
+  let rec aux n acc =
+    if n <= 0 then acc
+    else if n < 64 then
+      (* 对于 n < 64，生成一个最大位数为 n 的随机数 *)
+      let rand_num = gen_random_int64 n in
+      rand_num :: acc
+    else
+      (* 对于 n >= 64，生成一个64位随机数并处理剩下的位数 *)
+      let rand_num = gen_random_int64 64 in
+      aux (n - 64) (rand_num :: acc)
+  in
+  Random.self_init ();  (* 初始化随机数种子 *)
+  List.rev (aux n [])   (* 生成随机数列表并反转 *)
+
+;;
+
+(* let GenAlea n =  *)
+
+
+(* 测试 gen_alea 函数 *)
+
+let string_of_bool_list lst =
+  let rec aux lst acc =
+    match lst with
+    | [] -> acc ^ "]"
+    | [h] -> acc ^ (string_of_bool h) ^ "]"
+    | h::t -> aux t (acc ^ (string_of_bool h) ^ "; ")
+  in
+  aux lst "[";;
+
+let ex_result = gen_alea 100;;
+  (* 打印结果 *)
+Printf.printf "ex_result\n" ;;
+List.iter (fun i -> Printf.printf "%Ld\n" i) ex_result;;
+
+let exf_result  = decomposition ex_result;;
+let exff_result = string_of_bool_list exf_result;;
+
+Printf.printf "%s\n\n" exff_result;;
+
+Printf.printf "%s\n\n" "Arbre : ";;
+
 (* TEST *)
 
-let b = [0L; Int64.shift_left 1L 36];;
+(* let b = [0L; Int64.shift_left 1L 36];;
 let a = [38L];;
-let dec = decomposition b;;
+let dec = decomposition a;;
 (*verification de la liste pour le dev*)
 List.iter (fun b -> Printf.printf "%b " b) dec;;
 Printf.printf "\n" ;;
 
-let composition_result = composition dec;;
+let table_verite = table a 2;;
+List.iter (fun i -> Printf.printf "%b " i) table_verite;; *)
+
+(* let composition_result = composition dec;;
 List.iter (fun i -> Printf.printf "%Ld " i) composition_result;;
 Printf.printf "\n" ;;
 
-(* affichage pour le dev *)
 let print_int64_list list =
   let string_of_int64_elems elems =
     let strs = List.map (fun i -> Printf.sprintf "%Ld" i) elems in
@@ -188,5 +259,5 @@ let print_int64_list list =
   in
   Printf.printf "on obtient : [%s]\n" (string_of_int64_elems list);;
 
-print_int64_list composition_result;;
+print_int64_list composition_result;; *)
 
