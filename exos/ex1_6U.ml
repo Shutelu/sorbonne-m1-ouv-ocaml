@@ -175,6 +175,11 @@ let table x n = completion (decomposition x) n;;
 
 (* ******************************************************************************************** *)
 
+(* Q1.6 | 
+   description : genere aleatoirement un entier sur n bits sous forme de liste
+   param n : le nombre max de bits de l'entier
+   return : une liste de int64 qui represente notre entier aleatoire
+*)
 let genAlea n = 
   let rec aux tmp_lst count = 
     if count > 64 then 
@@ -183,6 +188,7 @@ let genAlea n =
     else
       tmp_lst @ [Random.int64 (Int64.shift_left 1L n)]
   in
+  Random.self_init (); 
   aux [] n
 ;;
 
