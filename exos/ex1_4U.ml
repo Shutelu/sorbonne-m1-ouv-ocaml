@@ -180,7 +180,7 @@ let composition_result = composition dec;;
 List.iter (fun i -> Printf.printf "%Ld " i) composition_result;;
 Printf.printf "\n" ;;
 
-(* pour le dev *)
+(* affichage pour le dev *)
 let print_int64_list list =
   let string_of_int64_elems elems =
     let strs = List.map (fun i -> Printf.sprintf "%Ld" i) elems in

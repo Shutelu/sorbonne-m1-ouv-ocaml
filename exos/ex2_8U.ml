@@ -263,27 +263,9 @@ let cons_arbre bool_lst =
   aux repaired_lst 1
 ;;
 
-(* Q2.9 |
-  description : contruit la liste des etiquettes des feuilles du sous arbre enracine en N
-  param tree : le sous arbre
-  return : les feuilles du sous arbre, en tant que liste boolean   
-*)
-let rec liste_feuilles tree =
-  match tree with
-  | Feuille b -> [b]
-  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right)
-;;
 
-let liste = [true; true; false; true; false; false; true; false; true; false]
-let tree = cons_arbre liste
-
-let () =
-  let result = liste_feuilles tree in
-  List.iter (fun b -> Printf.printf "%B " b) result;
-  print_newline()
-;;
 (*以下两个函数为打印函数，仅用于检查树是否构建正确*)
-(* let liste = [true; true; false; true; false; false; true; false; true; false]
+let liste = [true; true; false; true; false; false; true; false; true; false]
 let tree = cons_arbre liste
 
 let rec print_arbre = function
@@ -310,7 +292,7 @@ let print_arbre tree = print_arbre_with_indent tree "";;
 
 print_arbre tree;
 
-Printf.printf "\n";; *)
+Printf.printf "\n";;
 (* 
 let table_verite = table [25899L] 16;;
 List.iter (fun i -> Printf.printf "%b " i) table_verite;;  *)

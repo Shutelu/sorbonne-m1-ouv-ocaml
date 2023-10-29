@@ -1,4 +1,6 @@
+(* Importation *)
 open Int64;;
+open Random;;
 
 (* Q1.1 *)
 type bigInteger = int64 list;;

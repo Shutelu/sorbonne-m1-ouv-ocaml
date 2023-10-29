@@ -1,6 +1,4 @@
-(* Importation *)
 open Int64;;
-open Random;;
 
 (* Q1.1 *)
 type bigInteger = int64 list;;
@@ -21,8 +19,7 @@ let decomposition_aux n =
       let result_bool = (Int64.logand n (Int64.shift_left 1L currentBit) <> 0L) in
       aux (result_bool :: tmp_lst) (currentBit - 1)
   in
-  aux [] 63
-;;
+  aux [] 63;;
 
 (* Q1.2 |
   description : chercher l'index du dernier true dans la 'liste binaire'
@@ -128,8 +125,7 @@ let completion bool_lst n =
 let bool_list_to_int64 bool_lst =
   let reversed_lst = List.rev bool_lst in (* mettre a l'endroit *)
   (* le 1er 1 lance la procedure de decalage ensuite si true on fait +1 sinon +0 dans tout les cas on decale donc 2^n *)
-  List.fold_left (fun acc b -> Int64.(add (shift_left acc 1) (if b then 1L else 0L))) 0L reversed_lst
-;;
+  List.fold_left (fun acc b -> Int64.(add (shift_left acc 1) (if b then 1L else 0L))) 0L reversed_lst;;
 
 (* Q1.4 |
   description : prend une liste de boolean, decoupe la liste jusqu'a obtenir une liste de 64 boolean et retourne la sous liste et le reste
@@ -177,6 +173,8 @@ let composition bool_lst : int64 list =
 *)
 let table x n = completion (decomposition x) n;;
 
+(* ******************************************************************************************** *)
+
 (* Q1.6 | 
    description : genere aleatoirement un entier sur n bits sous forme de liste
    param n : le nombre max de bits de l'entier
@@ -194,130 +192,9 @@ let genAlea n =
   aux [] n
 ;;
 
-(* Q2.7 *)
-type arbre =
-  | Noeud of arbre* int * arbre
-  | Feuille of bool
-;;
-
-(* ******************************************************************************************** *)
-
-(* Q2.8 | 
-  description : prendre une liste et garde les n premiers elements
-  param l : la liste boolean 
-  param n : le nombre de premier element
-  return : la liste boolean gardant les n premiers elements
-*)
-let rec take l n =
-  match l with
-  | [] -> []
-  | h::t -> if n = 0 then [] else h :: take t (n-1)
-
-(* Q2.8 | 
-  description : prendre une liste et jete les n premiers element, pour garder le reste
-  param l : la liste boolean 
-  param n : le nombre de premier element
-  return : la liste boolean privee de ses n premier element
-*)
-let rec drop l n = 
-  match l with
-  | [] -> []
-  | h::t -> if n = 0 then l else drop t (n-1)
-;;
-
-(* Q2.8 |
-  description : prend une list boolean, si sa taille ne correspond pas a une puissance de 2,
-  lui applique la fonction completion pour lui donner une taille de puissance de 2 (borne superieur) 
-  param bool_lst : la liste boolean a reparer
-  return : liste boolean avec taille reparer
-*)
-let repair_lst_power bool_lst =
-  let taille = List.length bool_lst in
-  let rec aux l t count =
-    let taille64 = Int64.of_int taille in
-    let power_of2 = Int64.shift_left 1L count in
-
-    if taille64 = power_of2 || count = 64 then bool_lst
-    else if taille64 < power_of2 then completion bool_lst (Int64.to_int power_of2) 
-    else aux l t (count+1)
-  in
-  aux bool_lst taille 0
-;;
-
-(* Q2.8 |
-   description : construit l'arbre de decision correspondant a la table de verite, l'arbre est equilibre
-   param bool_lst : la table de verite
-   return : la racine de notre arbre
-*)
-let cons_arbre bool_lst =
-  let repaired_lst = repair_lst_power bool_lst in
-  let rec aux l profondeur =
-    let taille = List.length l in
-    if taille = 1 then Feuille(List.hd l)
-    else 
-      let mid = taille /2 in
-      let lst_gauche = take l mid in
-      let lst_droit = drop l mid in
-      Noeud(aux lst_gauche (profondeur+1), profondeur , aux lst_droit (profondeur+1))
-  in
-  aux repaired_lst 1
-;;
-
-(* Q2.9 |
-  description : contruit la liste des etiquettes des feuilles du sous arbre enracine en N
-  param tree : le sous arbre
-  return : les feuilles du sous arbre, en tant que liste boolean   
-*)
-let rec liste_feuilles tree =
-  match tree with
-  | Feuille b -> [b]
-  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right)
-;;
-
-let liste = [true; true; false; true; false; false; true; false; true; false]
-let tree = cons_arbre liste
-
-let () =
-  let result = liste_feuilles tree in
-  List.iter (fun b -> Printf.printf "%B " b) result;
-  print_newline()
-;;
-(*以下两个函数为打印函数，仅用于检查树是否构建正确*)
-(* let liste = [true; true; false; true; false; false; true; false; true; false]
-let tree = cons_arbre liste
-
-let rec print_arbre = function
-  | Feuille b -> Printf.printf "Feuille(%B) " b
-  | Noeud(left, n, right) -> 
-      Printf.printf "Noeud(%d) (" n;
-      print_arbre left;
-      Printf.printf ") (";
-      print_arbre right;
-      Printf.printf ")";;
-
-let rec print_arbre_with_indent tree indent =
-  match tree with
-  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent b
-  | Noeud(left, n, right) ->
-      Printf.printf "%sNoeud(%d)\n" indent n;
-      print_arbre_with_indent left (indent ^ "  ");
-      print_arbre_with_indent right (indent ^ "  ")
-
-let print_arbre tree = print_arbre_with_indent tree "";;
-      
-
-
-
-print_arbre tree;
-
-Printf.printf "\n";; *)
-(* 
-let table_verite = table [25899L] 16;;
-List.iter (fun i -> Printf.printf "%b " i) table_verite;;  *)
-
 (* 测试 gen_alea 函数 *)
 
-(* let string_of_bool_list lst =
+let string_of_bool_list lst =
   let rec aux lst acc =
     match lst with
     | [] -> acc ^ "]"
@@ -326,7 +203,7 @@ List.iter (fun i -> Printf.printf "%b " i) table_verite;;  *)
   in
   aux lst "[";;
 
-let ex_result = genAlea 10;;
+let ex_result = genAlea 100;;
 
 Printf.printf "ex_result\n" ;;
 List.iter (fun i -> Printf.printf "%Ld; " i) ex_result;;
@@ -337,7 +214,7 @@ let exff_result = string_of_bool_list exf_result;;
 
 Printf.printf "%s\n\n" exff_result;;
 
-Printf.printf "%s\n\n" "Arbre : ";; *)
+Printf.printf "%s\n\n" "Arbre : ";;
 
 (* TEST *)
 

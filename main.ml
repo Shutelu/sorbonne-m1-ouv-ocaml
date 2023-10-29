@@ -221,7 +221,7 @@ let print_arbre tree = print_arbre_with_indent tree "";;
 let rec liste_feuilles tree =
   match tree with
   | Feuille b -> [b]
-  | Noeud(_, left, right) -> (liste_feuilles left) @ (liste_feuilles right);;
+  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right);;
 
 (* Ex 3.10 *)
 type listeDejaVue = (int64 list * arbre) list
