@@ -83,20 +83,6 @@ let completion bool_list n =
   else
     bool_list
 
-let int64_list = [0L; Int64.shift_left 1L 36];;
-let result = process_int64_list int64_list;;
-let result_str = string_of_bool_list result;;
-Printf.printf "%s\n\n" result_str;;
-
-
-let new_result = completion result 4;;
-let nnew_result = string_of_bool_list new_result;;
-Printf.printf "%s\n\n" nnew_result;;
-
-let more_result = completion result 105;;
-let mmore_result = string_of_bool_list more_result;;
-Printf.printf "%s\n\n" mmore_result;;
-
 (**********)
 (* Ex 1.4 *)
 (**********)
@@ -132,12 +118,6 @@ let composition (para_list: bool list) : int64 list =
   let splitted_lists = split_list para_list in
   List.map process_sublists splitted_lists;;
 
-(* 测试 composition 函数 *)
-
-
-let composition_result = composition result;;
-List.iter (fun i -> Printf.printf "%Ld\n" i) composition_result;;
-
 let print_int64_list list =
   let string_of_int64_elems elems =
     let strs = List.map (fun i -> Printf.sprintf "%Ld" i) elems in
@@ -145,12 +125,10 @@ let print_int64_list list =
   in
   Printf.printf "[%s]\n" (string_of_int64_elems list);;
 
-print_int64_list composition_result;;
 
-
-(******************)
-(* Ex 1.5 & Ex 1.6*)
-(******************)
+(*********)
+(* Ex 1.6*)
+(*********)
 
 (* 生成指定位数的随机正数 int64 *)
 let gen_random_int64 bits =
@@ -185,21 +163,6 @@ let gen_alea n =
   Random.self_init ();  (* 初始化随机数种子 *)
   List.rev (aux n [])   (* 生成随机数列表并反转 *)
 
-(* 测试 gen_alea 函数 *)
-
-let ex_result = gen_alea 100;;
-  (* 打印结果 *)
-List.iter (fun i -> Printf.printf "%Ld\n" i) ex_result;;
-
-let exf_result  = process_int64_list ex_result;;
-let exff_result = string_of_bool_list exf_result;;
-
-Printf.printf "%s\n\n" exff_result;;
-
-Printf.printf "%s\n\n" "Arbre : ";;
-
-
-
 (* Ex 2.7 *)
 type arbre =
   | Noeud of int * arbre * arbre
@@ -233,13 +196,6 @@ let rec cons_arbre liste =
     int_of_float (2.0 ** (ceil (log (float_of_int (List.length liste)) /. log 2.0))) in
   let full_list = completion liste next_power_of_two in
   aux full_list 1
-  
-
-
-
-(*以下两个函数为打印函数，仅用于检查树是否构建正确*)
-let liste = [true; true; false; true; false; false; true; false; true; false]
-let tree = cons_arbre liste
 
 let rec print_arbre = function
   | Feuille b -> Printf.printf "Feuille(%B) " b
@@ -261,19 +217,12 @@ let rec print_arbre_with_indent tree indent =
 let print_arbre tree = print_arbre_with_indent tree "";;
       
 
-
-
-print_arbre tree;
-
-Printf.printf "\n";;
-
 (* Ex 2.9 *)
 let rec liste_feuilles tree =
   match tree with
   | Feuille b -> [b]
   | Noeud(_, left, right) -> (liste_feuilles left) @ (liste_feuilles right);;
 
-let () =
-  let result = liste_feuilles tree in
-  List.iter (fun b -> Printf.printf "%B " b) result;
-  print_newline()
+(* Ex 3.10 *)
+type listeDejaVue = (int64 list * arbre) list
+
