@@ -263,11 +263,7 @@ let cons_arbre bool_lst =
   aux repaired_lst 1
 ;;
 
-(* Q2.9 |
-  description : contruit la liste des etiquettes des feuilles du sous arbre enracine en N
-  param tree : le sous arbre
-  return : les feuilles du sous arbre, en tant que liste boolean   
-*)
+(* Ex 2.9 *)
 let rec liste_feuilles tree =
   match tree with
   | Feuille b -> [b]

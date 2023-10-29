@@ -271,7 +271,7 @@ Printf.printf "\n";;
 let rec liste_feuilles tree =
   match tree with
   | Feuille b -> [b]
-  | Noeud(_, left, right) -> (liste_feuilles left) @ (liste_feuilles right);;
+  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right);;
 
 let () =
   let result = liste_feuilles tree in
