@@ -274,14 +274,35 @@ let rec liste_feuilles tree =
   | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right)
 ;;
 
-let liste = [true; true; false; true; false; false; true; false; true; false]
+
+
+(* 3.10 *)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(*let liste = [true; true; false; true; false; false; true; false; true; false]
 let tree = cons_arbre liste
 
 let () =
   let result = liste_feuilles tree in
   List.iter (fun b -> Printf.printf "%B " b) result;
   print_newline()
-;;
+;;*)
+
 (*以下两个函数为打印函数，仅用于检查树是否构建正确*)
 (* let liste = [true; true; false; true; false; false; true; false; true; false]
 let tree = cons_arbre liste

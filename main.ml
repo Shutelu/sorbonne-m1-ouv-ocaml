@@ -1,228 +1,275 @@
-open Int64
+(* Importation *)
+open Int64;;
+open Random;;
 
-(*********)
-(*Ex 1.2*)
-(*********)
+(* Q1.1 *)
+type bigInteger = int64 list;;
+let prim_insertion lst e = lst @ [e];;
+let prim_reccup lst = List.hd lst;;
+let prim_supp lst = List.tl lst;;
 
-(* 将一个 int64 转换为一个 bool 列表，表示其二进制形式 *)
-let decomposition n =
-  let rec aux n acc i =
-    if i < 0 then acc
-    else aux n ((Int64.logand n (Int64.shift_left 1L i) <> 0L) :: acc) (i - 1)
+(* Q1.2 |
+  description : utiliser par decomposition, retourne le binaire de n:int64 sous forme de liste boolean
+  paremetre n : element int64 pour obtenir le binaire
+  return : liste boolean
+*)
+let decomposition_aux n =
+  let rec aux tmp_lst currentBit =
+    if currentBit < 0 then tmp_lst
+    else 
+      (* comparaison pour ajouter soit true soit false *)
+      let result_bool = (Int64.logand n (Int64.shift_left 1L currentBit) <> 0L) in
+      aux (result_bool :: tmp_lst) (currentBit - 1)
   in
-  aux n [] 63;;
+  aux [] 63
+;;
 
-(* 找到最后一个 true 在 bool 列表中的索引 *)
-let rec find_last_true_index lst idx last_true =
-  match lst with
-  | [] -> last_true
-  | h::t -> 
-      let new_last = if h then idx else last_true in
-      find_last_true_index t (idx + 1) new_last;;
+(* Q1.2 |
+  description : chercher l'index du dernier true dans la 'liste binaire'
+  parametre : liste a chercher
+  return : entier index
+*)
+let find_last_true_index lst =
+  let rec aux l count last_position =
+    match l with
+    | [] -> last_position
+    | h::t -> 
+        let new_position = if h then count else last_position in
+        aux t (count + 1) new_position
+  in
+  aux lst 0 (-1)
+;;
 
-(* 裁剪列表，仅包括最后一个 true 之前的所有项（包括它） *)
+(* Q1.2 |
+  description : pour le dernier element enlever les false inutile (00000)100
+  parametre : liste a trimmer
+  return : la liste boolean sans les false inutile
+*)
 let trim_list lst =
-  let last_true_pos = find_last_true_index lst 0 (-1) in
-  if last_true_pos = -1 then []
-  else List.rev (List.fold_left (fun acc h -> if (List.length acc) <= last_true_pos then h::acc else acc) [] lst);;
-
-(* 处理 int64 list，并按指定格式打印 *)
-let process_int64_list (int64_list: int64 list) =
-  let list_length = List.length int64_list in
-  let process_single_int64 i n =  
-    let bits = decomposition n in
-    (* 如果这不是列表中的最后一个元素，则打印完整的列表，否则我们裁剪列表 *)
-    let final_bits = if i < list_length - 1 then bits else trim_list bits in
-    final_bits
-  in
-  let result_list = List.mapi process_single_int64 int64_list in
-  List.flatten result_list;;
-
-(* 将 bool 列表转换为字符串表示 *)
-let string_of_bool_list lst =
-  let rec aux lst acc =
-    match lst with
-    | [] -> acc ^ "]"
-    | [h] -> acc ^ (string_of_bool h) ^ "]"
-    | h::t -> aux t (acc ^ (string_of_bool h) ^ "; ")
-  in
-  aux lst "[";;
-
-
-
-(**********)
-(* Ex 1.3 *)
-(**********)
-
-(* 定义 completion 函数 *)
-let completion bool_list n =
-  (* 获取列表长度 *)
-  let list_length = List.length bool_list in
-
-  (* 如果 n 大于列表长度，扩展列表 *)
-  if n > list_length then
-    (* 计算需要扩展的元素数量 *)
-    let rec extend_list remaining current_list =
-      if remaining > 0 then
-        extend_list (remaining - 1) (current_list @ [false]) (* 添加 false 到列表末尾 *)
-      else
-        current_list
+  let last_true_pos = find_last_true_index lst in
+  if last_true_pos = -1 then [](* pas de true *)
+  else 
+    (* on connait l'index : cree une fonction qui permet d'accumuler des bools dans un liste tant qu'on est pas au dernier true *)
+    let f tmp_lst hd = 
+      if (List.length tmp_lst) <= last_true_pos then hd::tmp_lst 
+      else tmp_lst (* rien rajouter *)
     in
-    extend_list (n - list_length) bool_list (* 开始扩展列表 *)
+    List.rev (List.fold_left f [] lst)
+;;
 
-  (* 如果 n 小于列表长度，切割列表 *)
-  else if n < list_length then
-    let rec cut_list i = function
-      | [] -> [] (* 如果列表为空或者我们已经取出需要的元素，则返回空列表 *)
-      | h :: t when i < n -> h :: cut_list (i + 1) t (* 如果 i < n，继续递归 *)
-      | _ -> [] (* 其他情况，返回空列表结束递归 *)
-    in
-    cut_list 0 bool_list (* 开始切割列表 *)
+(* Q1.2 | 
+  description : decomposition de la liste entier64 en une liste boolean,
+  parametre 'list' : liste de int64
+  return : liste boolean
+*)
+let decomposition (lst:int64 list) =
+  let rec aux l tmp_lst =
+    (* on prend le binaire de chaque element sous forme de liste boolean *)
+    let binaire = decomposition_aux (List.hd l) in
 
-  (* 如果 n 等于列表长度，直接返回原列表 *)
-  else
-    bool_list
-
-(**********)
-(* Ex 1.4 *)
-(**********)
-
-(* 定义 split_at 函数 *)
-let split_at (lst : 'a list) (n : int) : 'a list * 'a list =
-  let rec aux i acc = function
-    | [] -> (List.rev acc, []) 
-    | h :: t as l -> if i = 0 then (List.rev acc, l)
-                     else aux (i-1) (h :: acc) t 
+    match l with 
+    |[] -> []
+    (* special case pour le dernier element *)
+    |[_] -> tmp_lst @ (trim_list binaire)
+    |tete::reste -> aux reste (tmp_lst @ binaire)
   in
-  if n <= 0 then ([], lst) 
-  else aux n [] lst;;
+  aux lst []
+;;
 
-(* 将 bool list 转换为 int64 *)
-let bool_list_to_int64 bool_list =
-  List.fold_left (fun acc b -> Int64.(add (shift_left acc 1) (if b then 1L else 0L))) 0L bool_list;;
+(* Q1.3 | 
+  description : extension de la liste avec des false
+  parametre : count entier nombre d'ajout
+  parametre : lst liste boolean 
+  return : liste boolean avec des false (bits) en plus
+*)
+let rec extend_bool_lst count lst =
+  if count > 0 then 
+    (*ajout du false a la fin de la liste*)
+    extend_bool_lst (count-1) (lst @ [false]) 
+  else lst
+;;
 
-(* 将参数列表分割为多个子列表，每个子列表最多64位 *)
-let rec split_list list =
-  match list with
-  | [] -> []
-  | _  -> 
-      let (sous_list, rest) = split_at list 64 in
-      sous_list :: split_list rest;;
+(* Q1.3 | 
+  description : couper la liste de count fois
+  parametre : count entier nombre de coupe
+  parametre : lst liste boolean 
+  return : liste boolean avec des bits en moins
+*)
+let rec cut_bool_lst count lst tmp_lst = 
+  match lst with 
+  |[] -> []
+  |t::q -> 
+    if count > 0 then cut_bool_lst (count-1) q (tmp_lst @ [t])
+    else tmp_lst
+;;
 
-(* 转换每个子列表并将结果收集到结果列表中 *)
-let process_sublists sublist =
-  bool_list_to_int64 (List.rev sublist);;
+(* Q1.3 | 
+  description : renvoie une liste de n element
+    tronquée jusqu'a n premiers element ou completé jusqu'a n avec des false
+  parametre : bool_lst liste boolean a tronquée ou a completé
+  parametre : n entier
+  return : liste boolean tronquée ou completé de taille n
+*)
+let completion bool_lst n =
+  let taille = List.length bool_lst in
+  if n > taille then 
+    extend_bool_lst (n-taille) bool_lst
+  else if n < taille then
+    cut_bool_lst n bool_lst []
+  else 
+    bool_lst
+;;
 
-(* 定义 composition 函数 *)
-let composition (para_list: bool list) : int64 list =
-  let splitted_lists = split_list para_list in
-  List.map process_sublists splitted_lists;;
+(* Q1.4 |
+  description : transforme une liste boolean en entier64
+  param : bool_lst liste boolean
+  return : entier64 representer dans la liste
+*)
+let bool_list_to_int64 bool_lst =
+  let reversed_lst = List.rev bool_lst in (* mettre a l'endroit *)
+  (* le 1er 1 lance la procedure de decalage ensuite si true on fait +1 sinon +0 dans tout les cas on decale donc 2^n *)
+  List.fold_left (fun acc b -> Int64.(add (shift_left acc 1) (if b then 1L else 0L))) 0L reversed_lst
+;;
 
-let print_int64_list list =
-  let string_of_int64_elems elems =
-    let strs = List.map (fun i -> Printf.sprintf "%Ld" i) elems in
-    String.concat "; " strs
+(* Q1.4 |
+  description : prend une liste de boolean, decoupe la liste jusqu'a obtenir une liste de 64 boolean et retourne la sous liste et le reste
+  param : lst liste a decouper
+  return : si taille de lst <64 la meme liste, sinon une liste de 64 element, et reste de lst
+*)
+let split_list_by64 lst =
+  let rec aux l tmp_lst count =
+    match l with
+    |[]->(List.rev tmp_lst, l) (* soit taille lst < 64 *)
+    |t::reste -> 
+      if count = 0 then (List.rev tmp_lst, l) (* soit taille lst > 64 *)
+      else aux reste (t::tmp_lst) (count-1)
   in
-  Printf.printf "[%s]\n" (string_of_int64_elems list);;
+  aux lst [] 64
+;;
 
+(* Q1.4 |
+  description : prend une liste de boolean et renvoie une liste de liste decouper si possible en taille 64 ex :[1;0;1] -> [[1];[0];[1]]
+  param : lst liste boolean
+  return : une liste de sous liste boolean
+*)
+let rec split_list_to_sublists lst =
+  if lst = [] then []
+  else 
+    let (sous_lst, reste_lst) = split_list_by64 lst in
+    sous_lst :: split_list_to_sublists reste_lst
+;;
 
-(*********)
-(* Ex 1.6*)
-(*********)
+(* Q1.4 | 
+  description : prend une liste de bits (bool) et contruction l'entier qui le represente 
+  param : une liste de boolean qui represente un nb binaire
+  return : entier que le binaire represente sous forme de int64 list
+*)
+let composition bool_lst : int64 list =
+  let list_of_boollist = split_list_to_sublists bool_lst in
+  List.map bool_list_to_int64 list_of_boollist
+;;
 
-(* 生成指定位数的随机正数 int64 *)
-let gen_random_int64 bits =
-  let rec aux acc bits_remaining =
-    if bits_remaining <= 0 then acc
+(* Q1.5 |
+  description : table de verité, prendre un entier64 'x', le decompose en base 2, le complete pour faire la taille n
+  param x : entier64 (int64 list)
+  param n : taille qu'aura la table de verité
+  return : liste boolean (la table de verité)
+*)
+let table x n = completion (decomposition x) n;;
+
+(* Q1.6 | 
+   description : genere aleatoirement un entier sur n bits sous forme de liste
+   param n : le nombre max de bits de l'entier
+   return : une liste de int64 qui represente notre entier aleatoire
+*)
+let genAlea n = 
+  let rec aux tmp_lst count = 
+    if count > 64 then 
+      let tmp = tmp_lst @ [Random.int64 Int64.max_int] in
+      aux tmp (n-64)
     else
-      (* 生成随机位并左移累加 *)
-      let bit = if Random.bool () then 1L else 0L in
-      let new_acc = logor (shift_left acc 1) bit in
-      aux new_acc (bits_remaining - 1)
+      tmp_lst @ [Random.int64 (Int64.shift_left 1L n)]
   in
-  if bits >= 64 then
-    (* 如果需要生成完整的64位数，确保最高位是1 *)
-    aux (shift_left 1L 63) 63
-  else
-    (* 否则生成少于64位的数 *)
-    aux 0L bits
+  Random.self_init (); 
+  aux [] n
+;;
 
-(* 根据 n 生成一个 int64 列表 *)
-let gen_alea n =
-  let rec aux n acc =
-    if n <= 0 then acc
-    else if n < 64 then
-      (* 对于 n < 64，生成一个最大位数为 n 的随机数 *)
-      let rand_num = gen_random_int64 n in
-      rand_num :: acc
-    else
-      (* 对于 n >= 64，生成一个64位随机数并处理剩下的位数 *)
-      let rand_num = gen_random_int64 64 in
-      aux (n - 64) (rand_num :: acc)
-  in
-  Random.self_init ();  (* 初始化随机数种子 *)
-  List.rev (aux n [])   (* 生成随机数列表并反转 *)
-
-(* Ex 2.7 *)
+(* Q2.7 *)
 type arbre =
-  | Noeud of int * arbre * arbre
+  | Noeud of arbre* int * arbre
   | Feuille of bool
+;;
 
+(* ******************************************************************************************** *)
 
-(* Ex2.8 *)
-let rec take l n =    (*取出前n个值*)
+(* Q2.8 | 
+  description : prendre une liste et garde les n premiers elements
+  param l : la liste boolean 
+  param n : le nombre de premier element
+  return : la liste boolean gardant les n premiers elements
+*)
+let rec take l n =
   match l with
   | [] -> []
   | h::t -> if n = 0 then [] else h :: take t (n-1)
 
-
-let rec drop l n =  (*扔掉前n个值*)
+(* Q2.8 | 
+  description : prendre une liste et jete les n premiers element, pour garder le reste
+  param l : la liste boolean 
+  param n : le nombre de premier element
+  return : la liste boolean privee de ses n premier element
+*)
+let rec drop l n = 
   match l with
   | [] -> []
   | h::t -> if n = 0 then l else drop t (n-1)
+;;
 
-let rec cons_arbre liste =
-  let rec aux l depth =
-    let n = List.length l in
-    if n = 1 then 
-      Feuille (List.hd l)
-    else
-      let mid = n / 2 in
-      let left_list = take l mid in
-      let right_list = drop l mid in
-      Noeud(depth, aux left_list (depth+1), aux right_list (depth+1))
+(* Q2.8 |
+  description : prend une list boolean, si sa taille ne correspond pas a une puissance de 2,
+  lui applique la fonction completion pour lui donner une taille de puissance de 2 (borne superieur) 
+  param bool_lst : la liste boolean a reparer
+  return : liste boolean avec taille reparer
+*)
+let repair_lst_power bool_lst =
+  let taille = List.length bool_lst in
+  let rec aux l t count =
+    let taille64 = Int64.of_int taille in
+    let power_of2 = Int64.shift_left 1L count in
+
+    if taille64 = power_of2 || count = 64 then bool_lst
+    else if taille64 < power_of2 then completion bool_lst (Int64.to_int power_of2) 
+    else aux l t (count+1)
   in
-  let next_power_of_two = 
-    int_of_float (2.0 ** (ceil (log (float_of_int (List.length liste)) /. log 2.0))) in
-  let full_list = completion liste next_power_of_two in
-  aux full_list 1
+  aux bool_lst taille 0
+;;
 
-let rec print_arbre = function
-  | Feuille b -> Printf.printf "Feuille(%B) " b
-  | Noeud(n, left, right) -> 
-      Printf.printf "Noeud(%d) (" n;
-      print_arbre left;
-      Printf.printf ") (";
-      print_arbre right;
-      Printf.printf ")";;
+(* Q2.8 |
+   description : construit l'arbre de decision correspondant a la table de verite, l'arbre est equilibre
+   param bool_lst : la table de verite
+   return : la racine de notre arbre
+*)
+let cons_arbre bool_lst =
+  let repaired_lst = repair_lst_power bool_lst in
+  let rec aux l profondeur =
+    let taille = List.length l in
+    if taille = 1 then Feuille(List.hd l)
+    else 
+      let mid = taille /2 in
+      let lst_gauche = take l mid in
+      let lst_droit = drop l mid in
+      Noeud(aux lst_gauche (profondeur+1), profondeur , aux lst_droit (profondeur+1))
+  in
+  aux repaired_lst 1
+;;
 
-let rec print_arbre_with_indent tree indent =
-  match tree with
-  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent b
-  | Noeud(n, left, right) ->
-      Printf.printf "%sNoeud(%d)\n" indent n;
-      print_arbre_with_indent left (indent ^ "  ");
-      print_arbre_with_indent right (indent ^ "  ")
-
-let print_arbre tree = print_arbre_with_indent tree "";;
-      
-
-(* Ex 2.9 *)
+(* Q2.9 |
+  description : contruit la liste des etiquettes des feuilles du sous arbre enracine en N
+  param tree : le sous arbre
+  return : les feuilles du sous arbre, en tant que liste boolean   
+*)
 let rec liste_feuilles tree =
   match tree with
   | Feuille b -> [b]
-  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right);;
-
-(* Ex 3.10 *)
-type listeDejaVue = (int64 list * arbre) list
-
+  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right)
+;;
