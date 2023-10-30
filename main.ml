@@ -196,7 +196,7 @@ let genAlea n =
 
 (* Q2.7 *)
 type arbre =
-  | Noeud of arbre* int * arbre
+  | Noeud of arbre ref * int * arbre ref
   | Feuille of bool
 ;;
 
@@ -258,7 +258,7 @@ let cons_arbre bool_lst =
       let mid = taille /2 in
       let lst_gauche = take l mid in
       let lst_droit = drop l mid in
-      Noeud(aux lst_gauche (profondeur+1), profondeur , aux lst_droit (profondeur+1))
+      Noeud(ref(aux lst_gauche (profondeur+1)), profondeur , ref(aux lst_droit (profondeur+1)))
   in
   aux repaired_lst 1
 ;;
@@ -268,8 +268,14 @@ let cons_arbre bool_lst =
   param tree : le sous arbre
   return : les feuilles du sous arbre, en tant que liste boolean   
 *)
-let rec liste_feuilles tree =
-  match tree with
+let rec liste_feuilles arbre =
+  match arbre with
   | Feuille b -> [b]
-  | Noeud(left, _, right) -> (liste_feuilles left) @ (liste_feuilles right)
+  | Noeud(left, _, right) -> (liste_feuilles !left) @ (liste_feuilles !right)
 ;;
+
+(* 3.10 *)
+type listDejaVue = (int64 list * arbre ref) list
+(*  (25899, (fg 2a, 1, fd 2b) ) *)
+
+(*   *)
