@@ -197,7 +197,7 @@ let genAlea n =
 (* Q2.7 *)
 type arbre =
   | Noeud of arbre ref * int * arbre ref
-  | Feuille of bool
+  | Feuille of bool ref
 ;;
 
 (* ******************************************************************************************** *)
@@ -253,7 +253,7 @@ let cons_arbre bool_lst =
   let repaired_lst = repair_lst_power bool_lst in
   let rec aux l profondeur =
     let taille = List.length l in
-    if taille = 1 then Feuille(List.hd l)
+    if taille = 1 then Feuille( ref(List.hd l) )
     else 
       let mid = taille /2 in
       let lst_gauche = take l mid in
@@ -270,7 +270,7 @@ let cons_arbre bool_lst =
 *)
 let rec liste_feuilles arbre =
   match arbre with
-  | Feuille b -> [b]
+  | Feuille b -> [!b]
   | Noeud(left, _, right) -> (liste_feuilles !left) @ (liste_feuilles !right)
 ;;
 
@@ -282,12 +282,12 @@ type listDejaVue = (int64 list * arbre ref) list
 
 (* 递归检查右子树的所有叶子节点是否为false *)
 let rec all_leaves_false = function
-  | Feuille(value) -> not value
+  | Feuille(value) -> not !value
   | Noeud(_, _, right) -> all_leaves_false !right
 
 let rec compressionParListe (arbre: arbre ref) listDejaVu = 
   match !arbre with
-  | Feuille(_) -> listDejaVu
+  | Feuille(b) -> listDejaVu
   | Noeud(filsGauche, _, filsDroite) ->
     let listDejaVu = compressionParListe filsGauche listDejaVu in
     let listDejaVu = compressionParListe filsDroite listDejaVu in
@@ -300,7 +300,7 @@ let rec compressionParListe (arbre: arbre ref) listDejaVu =
     let res_list = composition (liste_feuilles !arbre) in
 
     (* 检查res_list是否与listDejaVu中的元素匹配 *)
-    let matched, listDejaVu = 
+    let matched, new_listDejaVu = 
       try
         let matched_elem = List.find (fun (il, _) -> il = res_list) listDejaVu in
         true, matched_elem::(List.filter (fun elem -> elem <> matched_elem) listDejaVu)
@@ -309,30 +309,40 @@ let rec compressionParListe (arbre: arbre ref) listDejaVu =
     in  
 
     if matched then
-      let _, ref_node = List.hd listDejaVu in
-      arbre := !ref_node;
-      listDejaVu
+        (* 如果匹配，替换当前节点 *)
+        let _, ref_node = List.hd new_listDejaVu in
+        arbre := !ref_node;
+        new_listDejaVu
     else
-      let new_elem = (res_list, arbre) in
-      new_elem::listDejaVu
+        (* 如果不匹配，添加到listDejaVu的开头 *)
+        let new_elem = (res_list, arbre) in
+        new_elem::new_listDejaVu
+  
 
-
-(* 使用您提供的bool list生成arbre *)
-let sample_bool_list = [true;  true; false; true; false; true; false; false; true; false; true; false; false; true ; true ;false]
-let sample_arbre = cons_arbre sample_bool_list
-
-(* 使用compressionParListe函数处理生成的arbre *)
-let result_listDejaVu = compressionParListe (ref sample_arbre) []
-
-(* 打印listDejaVu结果，并使用"||"分隔每个元素 *)
-let print_listDejaVu lst =
-  let print_tuple (int64_lst, _) =
-    let str_lst = List.map Int64.to_string int64_lst in
-    String.concat ";" str_lst
-  in
-  let stringified_list = List.map print_tuple lst in
-  String.concat "||" stringified_list
-
-let output = print_listDejaVu result_listDejaVu;;
-
-print_endline output;
+let rec print_arbre ?(full=false) a =
+match a with
+| Feuille(b) -> Printf.printf "%b " !b
+| Noeud(l, m, r) -> 
+  print_string "("; 
+  if full then Printf.printf "Left: ";
+  print_arbre !l; 
+  if full then Printf.printf ", Val: %d, Right: " m;
+  print_arbre !r;
+  print_string ")"
+      
+let print_listDejaVu listDejaVu = 
+  List.iter (fun (res_list, arb_ref) -> 
+    Printf.printf "Int64 list: ";
+    List.iter (fun i -> Printf.printf "%Ld " i) res_list;
+    Printf.printf "Tree: ";
+    print_arbre ~full:true !arb_ref;
+    Printf.printf " || ";
+  ) listDejaVu
+      
+    
+let () =
+  let bool_list = [true; true; false; true; false; true; false; false; true; false; true; false; false; true; true; false] in
+  let tree = ref (cons_arbre bool_list) in
+  let listDejaVu = compressionParListe tree [] in
+  print_listDejaVu listDejaVu
+  
