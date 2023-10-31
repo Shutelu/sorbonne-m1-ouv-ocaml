@@ -280,6 +280,11 @@ type listDejaVue = (int64 list * arbre ref) list
 
 (* 3.11  *)
 
+let rec get_left_child = function
+  | Noeud(left, _, _) -> left
+  | Feuille(_) -> failwith "Expected a Noeud but got a Feuille"
+
+
 (* 递归检查右子树的所有叶子节点是否为false *)
 let rec all_leaves_false = function
   | Feuille(value) -> not !value
@@ -291,6 +296,8 @@ let rec compressionParListe (arbre: arbre ref) listDejaVu =
   | Noeud(filsGauche, _, filsDroite) ->
     let listDejaVu = compressionParListe filsGauche listDejaVu in
     let listDejaVu = compressionParListe filsDroite listDejaVu in
+
+    
 
     (* 对右子树进行判断，如果所有叶子都是false，只保留左子树 *)
     if all_leaves_false !filsDroite then
