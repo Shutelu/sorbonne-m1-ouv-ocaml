@@ -278,4 +278,61 @@ let rec liste_feuilles arbre =
 type listDejaVue = (int64 list * arbre ref) list
 (*  (25899, (fg 2a, 1, fd 2b) ) *)
 
-(*   *)
+(* 3.11  *)
+
+(* 递归检查右子树的所有叶子节点是否为false *)
+let rec all_leaves_false = function
+  | Feuille(value) -> not value
+  | Noeud(_, _, right) -> all_leaves_false !right
+
+let rec compressionParListe (arbre: arbre ref) listDejaVu = 
+  match !arbre with
+  | Feuille(_) -> listDejaVu
+  | Noeud(filsGauche, _, filsDroite) ->
+    let listDejaVu = compressionParListe filsGauche listDejaVu in
+    let listDejaVu = compressionParListe filsDroite listDejaVu in
+
+    (* 对右子树进行判断，如果所有叶子都是false，只保留左子树 *)
+    if all_leaves_false !filsDroite then
+      arbre := !filsGauche;
+
+    (* 获取当前节点所对应的int64 list *)
+    let res_list = composition (liste_feuilles !arbre) in
+
+    (* 检查res_list是否与listDejaVu中的元素匹配 *)
+    let matched, listDejaVu = 
+      try
+        let matched_elem = List.find (fun (il, _) -> il = res_list) listDejaVu in
+        true, matched_elem::(List.filter (fun elem -> elem <> matched_elem) listDejaVu)
+      with Not_found -> 
+        false, listDejaVu
+    in  
+
+    if matched then
+      let _, ref_node = List.hd listDejaVu in
+      arbre := !ref_node;
+      listDejaVu
+    else
+      let new_elem = (res_list, arbre) in
+      new_elem::listDejaVu
+
+
+(* 使用您提供的bool list生成arbre *)
+let sample_bool_list = [true;  true; false; true; false; true; false; false; true; false; true; false; false; true ; true ;false]
+let sample_arbre = cons_arbre sample_bool_list
+
+(* 使用compressionParListe函数处理生成的arbre *)
+let result_listDejaVu = compressionParListe (ref sample_arbre) []
+
+(* 打印listDejaVu结果，并使用"||"分隔每个元素 *)
+let print_listDejaVu lst =
+  let print_tuple (int64_lst, _) =
+    let str_lst = List.map Int64.to_string int64_lst in
+    String.concat ";" str_lst
+  in
+  let stringified_list = List.map print_tuple lst in
+  String.concat "||" stringified_list
+
+let output = print_listDejaVu result_listDejaVu;;
+
+print_endline output;
