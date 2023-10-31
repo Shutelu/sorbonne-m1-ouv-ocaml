@@ -349,12 +349,17 @@ let rec compressionParListe (arbre: arbre ref) ldv =
     (*trouver moitier gauche false*)
     else
       let node_fils_gauche,ldv_fils_gauche = compressionParListe filsGauche ldv in
+      filsGauche := node_fils_gauche;
+      filsDroite := node_fils_gauche;
       (node_fils_gauche, ldv)
 ;;
 
     
 let dec = decomposition [25899L];;
 let tree = cons_arbre dec;;
+let tree_gauche = Noeud(ref (Feuille (ref true )), 2, ref (Feuille (ref true )));;
+let tree_droite = Noeud(ref (Feuille (ref false )), 2, ref (Feuille (ref false )));;
+let tree_test = Noeud(ref tree_gauche, 1, ref tree_droite);;
 
 
 let rec print_arbre = function
@@ -375,12 +380,12 @@ let rec print_arbre_with_indent tree indent =
       print_arbre_with_indent !right (indent ^ "  ")
 
 let print_arbre tree = print_arbre_with_indent tree "";;
-print_arbre tree;;
+print_arbre tree_test;;
 
-let result = compressionParListe (ref tree) [];;
+let result = compressionParListe (ref tree_test) [];;
 let node, ldv = result;;
 
-print_arbre tree;;
+print_arbre tree_test;;
 Printf.printf "\n";;
 (* 3.12 *)
 
