@@ -382,22 +382,59 @@ let node, ldv = result;;
 
 print_arbre tree;;
 Printf.printf "\n";;
-(* 使用您提供的bool list生成arbre
-let sample_bool_list = [true;  true; false; true; false; true; false; false; true; false; true; false; false; true ; true ;false]
-let sample_arbre = cons_arbre sample_bool_list
+(* 3.12 *)
 
-(* 使用compressionParListe函数处理生成的arbre *)
-let result_listDejaVu = compressionParListe (ref sample_arbre) []
+let to_dot arbre =
+  let buffer = Buffer.create 1024 in
+  let node_id = ref 0 in
+  let node_map = Hashtbl.create 100 in
 
-(* 打印listDejaVu结果，并使用"||"分隔每个元素 *)
-let print_listDejaVu lst =
-  let print_tuple (int64_lst, _) =
-    let str_lst = List.map Int64.to_string int64_lst in
-    String.concat ";" str_lst
+  let get_id a = 
+    try 
+      Some (Hashtbl.find node_map a)
+    with Not_found -> None
   in
-  let stringified_list = List.map print_tuple lst in
-  String.concat "||" stringified_list
 
-let output = print_listDejaVu result_listDejaVu;;
+  let add_id a id = 
+    Hashtbl.add node_map a id 
+  in
 
-print_endline output; *)
+  let rec helper a =
+    match get_id a with
+    | Some id -> id  (* Return the existing id *)
+    | None -> (
+      match a with
+      | Feuille(b) -> 
+        let id = !node_id in
+        incr node_id;
+        add_id a id;
+        Buffer.add_string buffer (Printf.sprintf "%d [label=\"%b\"];\n" id !b);
+        id
+      | Noeud(l, v, r) ->
+        let id = !node_id in
+        incr node_id;
+        add_id a id;
+        Buffer.add_string buffer (Printf.sprintf "%d [label=\"%d\"];\n" id v);
+        let left_id = helper !l in
+        let right_id = helper !r in
+        Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=dotted];\n" id left_id);
+        Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=solid];\n" id right_id);
+        id
+    )
+  in
+
+  Buffer.add_string buffer "graph G {\n";
+  ignore (helper arbre);
+  Buffer.add_string buffer "}\n";
+  Buffer.contents buffer
+
+
+
+let save_to_dot_file filename arbre =
+  let dot_content = to_dot arbre in
+  let oc = open_out filename in
+  output_string oc dot_content;
+  close_out oc
+
+let my_tree = tree;;
+save_to_dot_file "my_tree.dot" my_tree
