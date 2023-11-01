@@ -438,3 +438,37 @@ let save_to_dot_file filename arbre =
 
 let my_tree = tree;;
 save_to_dot_file "my_tree.dot" my_tree
+
+
+
+let rec print_node n =
+  match n with
+  | Feuille(b) -> Printf.printf "%b" !b
+  | Noeud(l, v, r) -> 
+      Printf.printf "("; 
+      print_node !l; 
+      Printf.printf ", %d, " v; 
+      print_node !r;
+      Printf.printf ")"
+
+let print_int64_list lst =
+  List.iter (fun i -> Printf.printf "%Ld " i) lst
+
+let print_listDejaVu_element (lst, n) =
+  print_int64_list lst;
+  Printf.printf " : ";
+  print_node n
+
+let print_listDejaVu l =
+  let rec aux = function
+      | [] -> ()
+      | [x] -> print_listDejaVu_element x
+      | x :: xs -> 
+          print_listDejaVu_element x; 
+          Printf.printf " || "; 
+          aux xs
+  in
+  aux l;
+  print_newline ();;
+
+  print_listDejaVu ldv;;
