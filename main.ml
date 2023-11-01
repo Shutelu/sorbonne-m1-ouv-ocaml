@@ -340,7 +340,8 @@ let rec compressionParListe (arbre: arbre ref) ldv =
         let node_fils_droite,ldv_fils_droite = compressionParListe filsDroite ldv_fils_gauche in
         filsGauche := node_fils_gauche;
         filsDroite := node_fils_droite;
-        (Noeud(ref node_fils_gauche,prof, ref node_fils_droite), ldv_fils_droite)
+        let newLDV = ldv_fils_droite @ [(grand_entier, Noeud(filsGauche, prof, filsDroite))] in
+        (Noeud(ref node_fils_gauche,prof, ref node_fils_droite), newLDV)
       (*dans ldv alors renvoie*)
       else
         let nb_ret_true, node_ret_true = (List.hd lst_tuple_recherche) in
