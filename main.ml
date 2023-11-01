@@ -308,10 +308,10 @@ let gauche_moitier_false lst =
   in aux dropped_lst
 ;;
 
-let rec compressionParListe (arbre: arbre ref) ldv = 
-  match !arbre with
+let rec compressionParListe (arbre: arbre) ldv = 
+  match arbre with
   | Feuille b -> 
-    let grand_entier = composition (liste_feuilles !arbre) in
+    let grand_entier = composition (liste_feuilles arbre) in
     let boolean_recherche, lst_tuple_recherche = recherche_ldv grand_entier ldv in
 
     (* pas dans ldv, ajout *)
@@ -325,7 +325,7 @@ let rec compressionParListe (arbre: arbre ref) ldv =
       (feuille, ldv)
 
   | Noeud(filsGauche, prof , filsDroite) ->
-    let transformed_node = liste_feuilles !arbre in
+    let transformed_node = liste_feuilles arbre in
     let gauche_false = gauche_moitier_false transformed_node in
 
     (*pas trouver moitier gauche false*)
@@ -336,11 +336,9 @@ let rec compressionParListe (arbre: arbre ref) ldv =
       (* pas dans ldv alors ajout*)
       if boolean_recherche = false then 
         (* fils gauche*)
-        let node_fils_gauche,ldv_fils_gauche = compressionParListe filsGauche ldv in
-        let node_fils_droite,ldv_fils_droite = compressionParListe filsDroite ldv_fils_gauche in
-        filsGauche := node_fils_gauche;
-        filsDroite := node_fils_droite;
-        let newLDV = ldv_fils_droite @ [(grand_entier, Noeud(filsGauche, prof, filsDroite))] in
+        let node_fils_gauche,ldv_fils_gauche = compressionParListe !filsGauche ldv in
+        let node_fils_droite,ldv_fils_droite = compressionParListe !filsDroite ldv_fils_gauche in
+        let newLDV = ldv_fils_droite @ [(grand_entier, Noeud(ref node_fils_gauche, prof, ref node_fils_droite))] in
         (Noeud(ref node_fils_gauche,prof, ref node_fils_droite), newLDV)
       (*dans ldv alors renvoie*)
       else
@@ -349,9 +347,8 @@ let rec compressionParListe (arbre: arbre ref) ldv =
 
     (*trouver moitier gauche false*)
     else
-      let node_fils_gauche,ldv_fils_gauche = compressionParListe filsGauche ldv in
+      let node_fils_gauche,ldv_fils_gauche = compressionParListe !filsGauche ldv in
       (node_fils_gauche, ldv)
-;;
 
     
 let dec = decomposition [25899L];;
@@ -376,58 +373,44 @@ let rec print_arbre_with_indent tree indent =
       print_arbre_with_indent !right (indent ^ "  ")
 
 let print_arbre tree = print_arbre_with_indent tree "";;
-print_arbre tree;;
 
-let result = compressionParListe (ref tree) [];;
+
+
+print_arbre tree;;
+Printf.printf "\n\n\n";;
+
+let result = compressionParListe (tree) [];;
 let node, ldv = result;;
 
-print_arbre tree;;
-Printf.printf "\n";;
 
+
+(* 3.13 *)
 
 let to_dot arbre =
   let buffer = Buffer.create 1024 in
   let node_id = ref 0 in
-  let node_map = Hashtbl.create 100 in
-
-  let get_id a = 
-    try 
-      Some (Hashtbl.find node_map a)
-    with Not_found -> None
-  in
-
-  let add_id a id = 
-    Hashtbl.add node_map a id 
-  in
 
   let rec helper a =
-    match get_id a with
-    | Some id -> id  (* Return the existing id *)
-    | None -> (
-      match a with
-      | Feuille(b) -> 
-        let id = !node_id in
-        incr node_id;
-        add_id a id;
-        Buffer.add_string buffer (Printf.sprintf "%d [label=\"%b\"];\n" id !b);
-        id
-      | Noeud(l, v, r) ->
-        let id = !node_id in
-        incr node_id;
-        add_id a id;
-        Buffer.add_string buffer (Printf.sprintf "%d [label=\"%d\"];\n" id v);
-        let left_id = helper !l in
-        let right_id = helper !r in
-        Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=dotted];\n" id left_id);
-        Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=solid];\n" id right_id);
-        id
-    )
+    let id = !node_id in
+    incr node_id;
+    match a with
+    | Feuille(b) -> 
+      Buffer.add_string buffer (Printf.sprintf "%d [label=\"%b\"];\n" id !b);
+      id
+    | Noeud(l, v, r) ->
+      Buffer.add_string buffer (Printf.sprintf "%d [label=\"%d\"];\n" id v);
+      let left_id = helper !l in
+      let right_id = helper !r in
+      Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=dotted];\n" id left_id);
+      Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=solid];\n" id right_id);
+      id
   in
 
   Buffer.add_string buffer "graph G {\n";
   ignore (helper arbre);
   Buffer.add_string buffer "}\n";
   Buffer.contents buffer
+
 
 
 
@@ -475,6 +458,7 @@ let print_listDejaVu l =
   print_listDejaVu ldv;;
 
 
+  (* 3.14 *)
 
 let to_dot_ldv ldv =
   let buffer = Buffer.create 1024 in
@@ -531,3 +515,106 @@ let save_to_dot_file_ldv filename ldv =
   
 let my_ldv = ldv;;
 save_to_dot_file_ldv "my_ldv.dot" my_ldv;;
+
+
+(***********************************************************)
+
+(* 4.16 *)
+let compressionParArbre (arbre: arbre ref) = 
+  let rec aux arbre_ref =
+    match !arbre_ref with
+    | Feuille b -> 
+      let grand_entier = composition (liste_feuilles !arbre_ref) in
+      let boolean_recherche, _ = recherche_ldv grand_entier [] in
+
+      if boolean_recherche = false then 
+        Feuille b
+      else
+        Feuille b
+
+    | Noeud(filsGauche, prof , filsDroite) ->
+      let transformed_node = liste_feuilles !arbre_ref in
+      let gauche_false = gauche_moitier_false transformed_node in
+
+      if gauche_false = false then
+        let grand_entier = composition transformed_node in
+        let boolean_recherche, _ = recherche_ldv grand_entier [] in
+
+        if boolean_recherche = false then 
+          let node_fils_gauche = aux filsGauche in
+          let node_fils_droite = aux filsDroite in
+          Noeud(ref node_fils_gauche, prof, ref node_fils_droite)
+        else
+          Noeud(filsGauche, prof, filsDroite)
+      else
+        aux filsGauche
+  in
+
+  let result = aux arbre in
+  arbre := result;
+  arbre
+
+let dec_c = decomposition [25899L];;
+let tree_c = cons_arbre dec;;
+let result_c = compressionParArbre (ref tree_c);;
+print_arbre !result_c;;
+
+
+(* 4.18 *)
+let to_dot_c arbre =
+  let buffer = Buffer.create 1024 in
+  let node_id = ref 0 in
+  let node_map = Hashtbl.create 100 in
+
+  let get_id_c a = 
+    try 
+      Some (Hashtbl.find node_map a)
+    with Not_found -> None
+  in
+
+  let add_id_c a id = 
+    Hashtbl.add node_map a id 
+  in
+
+  let rec helper a =
+    match get_id_c a with
+    | Some id -> id  (* Return the existing id *)
+    | None -> (
+      match a with
+      | Feuille(b) -> 
+        let id = !node_id in
+        incr node_id;
+        add_id_c a id;
+        Buffer.add_string buffer (Printf.sprintf "%d [label=\"%b\"];\n" id !b);
+        id
+      | Noeud(l, v, r) ->
+        let id = !node_id in
+        incr node_id;
+        add_id_c a id;
+        Buffer.add_string buffer (Printf.sprintf "%d [label=\"%d\"];\n" id v);
+        let left_id = helper !l in
+        let right_id = helper !r in
+        Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=dotted];\n" id left_id);
+        Buffer.add_string buffer (Printf.sprintf "%d -- %d [style=solid];\n" id right_id);
+        id
+    )
+  in
+
+  Buffer.add_string buffer "graph G {\n";
+  ignore (helper arbre);
+  Buffer.add_string buffer "}\n";
+  Buffer.contents buffer
+;;
+
+let save_to_dot_file_c filename arbre =
+  let dot_content = to_dot_c arbre in
+  let oc = open_out filename in
+  output_string oc dot_content;
+  close_out oc;;
+
+save_to_dot_file_c "my_arbre.dot" !result_c;;
+
+
+(******************************************************)
+(* 5.19 *)
+
