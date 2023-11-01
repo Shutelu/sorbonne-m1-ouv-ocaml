@@ -449,13 +449,14 @@ let print_listDejaVu l =
       | [x] -> print_listDejaVu_element x
       | x :: xs -> 
           print_listDejaVu_element x; 
-          Printf.printf " || "; 
+          Printf.printf "\n"; 
           aux xs
   in
   aux l;
   print_newline ();;
 
   print_listDejaVu ldv;;
+  Printf.printf"\n\n\n";;
 
 
   (* 3.14 *)
