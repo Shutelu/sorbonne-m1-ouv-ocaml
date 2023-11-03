@@ -313,21 +313,16 @@ let rec compressionParListe (arbre: arbre ref) ldv =
   | Feuille b -> 
     let grand_entier = composition (liste_feuilles !arbre) in
     let boolean_recherche, lst_tuple_recherche = recherche_ldv grand_entier ldv in
-    (* pas trouver on ajoute a ldv*)
+
+    (* pas dans ldv, ajout *)
     if boolean_recherche = false then 
-      (* si true*)
-      if !b = true then 
-        let gn , node = (grand_entier, Feuille (ref true)) in
-        let ldv_retour = ldv @ [(gn, node)] in
-        (node, ldv_retour)
-      (* si false*)
-      else 
-        let gn , node = (grand_entier, Feuille (ref false)) in
-        let ldv_retour = ldv @ [(gn, node)] in
-        (node, ldv_retour)
+      let gn , feuille = (grand_entier, Feuille b) in
+      let ldv_retour = ldv @ [(gn, feuille)] in
+      (feuille, ldv_retour)
+    (* dans ldv, retour *)
     else
-      let nb_ret_true, node_ret_true = (List.hd lst_tuple_recherche) in
-      (node_ret_true, ldv)
+      let nb_ret_true, feuille = (List.hd lst_tuple_recherche) in
+      (feuille, ldv)
 
   | Noeud(filsGauche, prof , filsDroite) ->
     let transformed_node = liste_feuilles !arbre in
@@ -343,6 +338,8 @@ let rec compressionParListe (arbre: arbre ref) ldv =
         (* fils gauche*)
         let node_fils_gauche,ldv_fils_gauche = compressionParListe filsGauche ldv in
         let node_fils_droite,ldv_fils_droite = compressionParListe filsDroite ldv_fils_gauche in
+        filsGauche := node_fils_gauche;
+        filsDroite := node_fils_droite;
         (Noeud(ref node_fils_gauche,prof, ref node_fils_droite), ldv_fils_droite)
       (*dans ldv alors renvoie*)
       else
@@ -352,27 +349,44 @@ let rec compressionParListe (arbre: arbre ref) ldv =
     (*trouver moitier gauche false*)
     else
       let node_fils_gauche,ldv_fils_gauche = compressionParListe filsGauche ldv in
+      filsGauche := node_fils_gauche;
+      filsDroite := node_fils_gauche;
       (node_fils_gauche, ldv)
 ;;
 
     
 let dec = decomposition [25899L];;
 let tree = cons_arbre dec;;
+let tree_gauche = Noeud(ref (Feuille (ref true )), 2, ref (Feuille (ref true )));;
+let tree_droite = Noeud(ref (Feuille (ref false )), 2, ref (Feuille (ref false )));;
+let tree_test = Noeud(ref tree_gauche, 1, ref tree_droite);;
+
+
+let rec print_arbre = function
+  | Feuille b -> Printf.printf "Feuille(%B) " !b
+  | Noeud(left, n, right) -> 
+      Printf.printf "Noeud(%d) (" n;
+      print_arbre !left;
+      Printf.printf ") (";
+      print_arbre !right;
+      Printf.printf ")";;
+
+let rec print_arbre_with_indent tree indent =
+  match tree with
+  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent !b
+  | Noeud(left, n, right) ->
+      Printf.printf "%sNoeud(%d)\n" indent n;
+      print_arbre_with_indent !left (indent ^ "  ");
+      print_arbre_with_indent !right (indent ^ "  ")
+
+let print_arbre tree = print_arbre_with_indent tree "";;
+print_arbre tree;;
+
 let result = compressionParListe (ref tree) [];;
 let node, ldv = result;;
 
-let print_listDejaVu lst =
-  let print_tuple (int64_lst, _) =
-    let str_lst = List.map Int64.to_string int64_lst in
-    String.concat ";" str_lst
-  in
-  let stringified_list = List.map print_tuple lst in
-  String.concat "||" stringified_list
-;;
-
-let output = print_listDejaVu ldv;;
-
-print_endline output;
+print_arbre tree;;
+Printf.printf "\n";;
 (* 使用您提供的bool list生成arbre
 let sample_bool_list = [true;  true; false; true; false; true; false; false; true; false; true; false; false; true ; true ;false]
 let sample_arbre = cons_arbre sample_bool_list
