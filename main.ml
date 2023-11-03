@@ -200,8 +200,6 @@ type arbre =
   | Feuille of bool ref 
 ;;
 
-(* ******************************************************************************************** *)
-
 (* Q2.8 | 
   description : prendre une liste et garde les n premiers elements
   param l : la liste boolean 
@@ -212,6 +210,7 @@ let rec take l n =
   match l with
   | [] -> []
   | h::t -> if n = 0 then [] else h :: take t (n-1)
+;;
 
 (* Q2.8 | 
   description : prendre une liste et jete les n premiers element, pour garder le reste
@@ -275,20 +274,14 @@ let rec liste_feuilles arbre =
 ;;
 
 (* 3.10 *)
-type listDejaVue = (int64 list * arbre) list
+type listDejaVue = (int64 list * arbre) list;;
 
-
-
-
-(* let liste_ldv = [(1,Feuille true);(2,Feuille false)];;
-let boolean, lst = recherche_ldv 2 liste_ldv;;
-let l1,l2 = List.hd lst;;  *)
-
-
-
-(* 3.11  *)
-
-(*3.11 recherche si element est dans ldv*)
+(* Q3.11 |
+  description : recherche si element est dans la premiere composante de ldv
+  param element : element a rechercher
+  param ldv : liste utiliser pour la recherche
+  return : couple de , boolean indiquant la presence de element, la liste ldv ou element trouver 
+*)
 let rec recherche_ldv element ldv =
   match ldv with
   |[] -> (false, ldv) (* ldv ici ne sert a rien*)
@@ -298,7 +291,11 @@ let rec recherche_ldv element ldv =
       else recherche_ldv element q
 ;;
 
-(* regarde si la motier gauche de lst est false*)
+(* Q3.11 | 
+  description : regarde si la motier droite de lst est false
+  param lst : la liste a verifier
+  return : true si moitier droite est contient entierement des false, sinon false
+*)
 let gauche_moitier_false lst =
   let dropped_lst = drop lst ((List.length lst)/2) in
   let rec aux l =
@@ -308,6 +305,12 @@ let gauche_moitier_false lst =
   in aux dropped_lst
 ;;
 
+(* Q3.11 |
+  description : compressions de l'arbre fourni en utilisant listDejaVue
+  param arbre : l'arbre a compresser
+  param ldf : listeDejaVue , une liste vide au depart
+  return : une couple, l'arbre compresser et ldv remplie
+*)
 let rec compressionParListe (arbre: arbre) ldv = 
   match arbre with
   | Feuille b -> 
@@ -349,6 +352,7 @@ let rec compressionParListe (arbre: arbre) ldv =
     else
       let node_fils_gauche,ldv_fils_gauche = compressionParListe !filsGauche ldv in
       (node_fils_gauche, ldv)
+;;
 
     
 let dec = decomposition [25899L];;
