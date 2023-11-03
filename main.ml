@@ -520,6 +520,9 @@ save_to_dot_file_ldv "my_ldv.dot" my_ldv;;
 
 (***********************************************************)
 
+(* 4.15 *)
+type arbreDejaVu = arbre
+
 (* 4.16 *)
 let compressionParArbre (arbre: arbre ref) = 
   let rec aux arbre_ref =
@@ -653,3 +656,63 @@ compressionParArbre的时间复杂性为O(n^2)和空间复杂性为O(n)。
 *)
 
 (*************************************************************************)
+
+(* 6.21 *)
+
+
+let rec count_noeuds (a: arbre) : int =
+  match a with
+  | Feuille _ -> 0  (* 如果是叶子节点，不增加计数 *)
+  | Noeud (left, _, right) ->
+      1 + (count_noeuds !left) + (count_noeuds !right)
+      (* 如果是节点，计数增加1，并递归计算左右子树的节点数 *)
+;;
+
+let nombre_N = 100;;
+let nombre_start = 1;;
+let nombre_end = 10;;
+let lst_nombre_Noeud = ref [];;  (* 使用引用来存储列表 *)
+
+let save_list_to_csv filename lst_ref =
+  let oc = open_out filename in
+  Printf.fprintf oc "Index,NombreDeNoeuds\n";
+  List.iteri (fun i (_, y) ->
+    Printf.fprintf oc "%d,%d\n" i y
+  ) !lst_ref;
+  close_out oc;;
+
+
+
+
+  for i = nombre_start to nombre_end do
+    let grand_nombre = genAlea nombre_N in
+    let list_grand_nombre = decomposition grand_nombre in
+    let arbre_grand_nombre_ref = ref (cons_arbre list_grand_nombre) in
+    let filename = "test" ^ string_of_int i ^ ".dot" in
+    save_to_dot_file filename !arbre_grand_nombre_ref;
+    
+    compressionParArbre arbre_grand_nombre_ref;
+    
+    let filename_compressed = "test_compressed" ^ string_of_int i ^ ".dot" in
+    save_to_dot_file_c filename_compressed !arbre_grand_nombre_ref;
+  
+    (* 计算节点数量并添加到列表中 *)
+    let count = count_noeuds !arbre_grand_nombre_ref in
+    lst_nombre_Noeud := !lst_nombre_Noeud @ [(i, count)];
+  done;;
+  
+  (* 将节点数量列表保存到 CSV 文件中 *)
+  let save_list_to_csv filename lst_ref =
+    let oc = open_out filename in
+    Printf.fprintf oc "Index,NombreDeNoeuds\n";
+    List.iter (fun (i, y) ->
+      Printf.fprintf oc "%d,%d\n" i y
+    ) !lst_ref;
+    close_out oc;;
+  
+  (* 调用函数保存 CSV 文件 *)
+  let csv_filename = "nombre_noeuds.csv";;
+  save_list_to_csv csv_filename lst_nombre_Noeud;;
+
+
+
