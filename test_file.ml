@@ -380,12 +380,12 @@ let rec print_arbre_with_indent tree indent =
       print_arbre_with_indent !right (indent ^ "  ")
 
 let print_arbre tree = print_arbre_with_indent tree "";;
-print_arbre tree_test;;
+print_arbre tree;;
 
-let result = compressionParListe (ref tree_test) [];;
+let result = compressionParListe (ref tree) [];;
 let node, ldv = result;;
 
-print_arbre tree_test;;
+print_arbre tree;;
 Printf.printf "\n";;
 (* 使用您提供的bool list生成arbre
 let sample_bool_list = [true;  true; false; true; false; true; false; false; true; false; true; false; false; true ; true ;false]
