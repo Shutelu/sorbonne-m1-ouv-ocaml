@@ -29,6 +29,7 @@ let primitive_reccuperation lst = List.hd lst;;
 let primitive_suppression lst = List.tl lst;;
 (* fin Q1.1 *********************************************************************************************************)
 
+(* debut Q1.2 *********************************************************************************************************)
 (* Q1.2 |
   description : utiliser par decomposition, retourne le binaire de n:int64 sous forme de liste boolean
   paremetre n : element int64 pour obtenir le binaire
