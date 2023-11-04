@@ -774,50 +774,31 @@ let rec count_noeuds (a: arbre) : int =
       (* 如果是节点，计数增加1，并递归计算左右子树的节点数 *)
 ;;
 
-let nombre_N = 100;;
+let nombre_N = 128;;(* 问题在这里 *)
 let nombre_start = 1;;
-let nombre_end = 100;;
+let nombre_end = 500;;
 let lst_nombre_Noeud = ref [];;  (* 使用引用来存储列表 *)
 
+for i = nombre_start to nombre_end do
+  let grand_nombre = genAlea nombre_N in
+  let list_grand_nombre = decomposition grand_nombre in
+  let arbre_grand_nombre_ref = ref (cons_arbre list_grand_nombre) in
+  let _ = compressionParArbre arbre_grand_nombre_ref in  (* 压缩Arbre *)
+  let count = count_noeuds !arbre_grand_nombre_ref in  (* 计算Noeuds的数量 *)
+  lst_nombre_Noeud := !lst_nombre_Noeud @ [count];  (* 仅添加Noeuds的数量到列表 *)
+done;;
 
-let save_list_to_csv filename lst_ref =
+(* 将Noeuds的数量列表保存到CSV文件中 *)
+(* 定义一个函数来将 int list 保存到 CSV 文件中 *)
+let save_list_to_csv filename lst =
   let oc = open_out filename in
-  Printf.fprintf oc "Index,NombreDeNoeuds\n";
-  List.iteri (fun i (_, y) ->
-    Printf.fprintf oc "%d,%d\n" i y
-  ) !lst_ref;
+  Printf.fprintf oc "NombreDeNoeuds\n"; (* CSV头部 *)
+  List.iter (fun count ->
+    Printf.fprintf oc "%d\n" count
+  ) lst;
   close_out oc;;
 
-
-
-
-  for i = nombre_start to nombre_end do
-    let grand_nombre = genAlea nombre_N in
-    let list_grand_nombre = decomposition grand_nombre in
-    let arbre_grand_nombre_ref = ref (cons_arbre list_grand_nombre) in
-    
-    
-    arbre_temp = compressionParArbre arbre_grand_nombre_ref;
-    
-    
-  
-    (* 计算节点数量并添加到列表中 *)
-    let count = count_noeuds !arbre_grand_nombre_ref in
-    lst_nombre_Noeud := !lst_nombre_Noeud @ [(i, count)];
-  done;;
-  
-  (* 将节点数量列表保存到 CSV 文件中 *)
-  let save_list_to_csv filename lst_ref =
-    let oc = open_out filename in
-    Printf.fprintf oc "Index,NombreDeNoeuds\n";
-    List.iter (fun (i, y) ->
-      Printf.fprintf oc "%d,%d\n" i y
-    ) !lst_ref;
-    close_out oc;;
-  
-  (* 调用函数保存 CSV 文件 *)
-  let csv_filename = "nombre_noeuds.csv";;
-  save_list_to_csv csv_filename lst_nombre_Noeud;;
-
-
-
+(* 调用函数保存CSV文件 *)
+let csv_filename = "nombre_noeuds.csv";;
+save_list_to_csv csv_filename lst_nombre_Noeud;;
+ 

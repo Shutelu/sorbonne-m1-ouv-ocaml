@@ -1,24 +1,17 @@
-# Python 脚本
-import pandas as pd
+import csv
 import matplotlib.pyplot as plt
 
-# 读取 CSV 文件
-df = pd.read_csv('nombre_noeuds.csv')
+# 读取CSV文件并统计Noeuds的数量
+noeuds_counts = []
+with open('nombre_noeuds.csv', 'r') as csvfile:
+    csvreader = csv.reader(csvfile)
+    next(csvreader)  # 跳过头部
+    for row in csvreader:
+        noeuds_counts.append(int(row[0]))  # Noeuds的数量在第一列
 
-# 创建折线图
-plt.figure()
-plt.plot(df['Index'], df['NombreDeNoeuds'], marker='o')
-
-# 设置图表标题和轴标签
-plt.title('Nombre de Noeuds dans l\'Arbre')
-plt.xlabel('Index')
-plt.ylabel('Nombre de Noeuds')
-
-# 显示网格
-plt.grid(True)
-
-# 保存图表为图片文件
-plt.savefig('nombre_noeuds_graph.png')
-
-# 显示图表
+# 绘制柱状图
+plt.hist(noeuds_counts, bins=range(0, 200, 1), edgecolor='black')  # bins的范围和大小根据需要调整
+plt.title('Distribution des Noeuds')
+plt.xlabel('Nombre de Noeuds')
+plt.ylabel('Fréquence')
 plt.show()
