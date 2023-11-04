@@ -2,11 +2,32 @@
 open Int64;;
 open Random;;
 
-(* Q1.1 *)
+(* debut Q1.1 *********************************************************************************************************)
+(* Q1.1 | description : definition de la structure des entiers avec grande précision *)
 type bigInteger = int64 list;;
-let prim_insertion lst e = lst @ [e];;
-let prim_reccup lst = List.hd lst;;
-let prim_supp lst = List.tl lst;;
+
+(* Q1.1 | 
+  description : ajout de l'element 'e' en fin de la liste 'lst'
+  param lst : liste où on ajoute 'e'
+  param e : element a ajouter
+  return : la liste avec 'e' ajouter en fin de liste
+*)
+let primitive_insertion lst e = lst @ [e];;
+
+(* Q1.1 | 
+  description : reccupere la tete de la liste
+  param lst : liste où on reccupere la tete
+  return : la tete de la liste
+*)
+let primitive_reccuperation lst = List.hd lst;;
+
+(* Q1.1 | 
+  description : renvoie la liste sans la tete de liste
+  param lst : liste où on renvoie tout sauf la tete
+  return : le reste de la liste sans la queue
+*)
+let primitive_suppression lst = List.tl lst;;
+(* fin Q1.1 *********************************************************************************************************)
 
 (* Q1.2 |
   description : utiliser par decomposition, retourne le binaire de n:int64 sous forme de liste boolean
@@ -683,7 +704,13 @@ List.iter (fun b -> Printf.printf "%b " b) result_decomposition_trente_huit;;
 (* fin TEST decomposition *)
 (**************************)
 
-(* TEST completion *)
+(*************************)
+(* debut TEST completion *)
+(*************************)
+
+(***********************)
+(* fin TEST completion *)
+(***********************)
 
 (* TEST composition *)
 
