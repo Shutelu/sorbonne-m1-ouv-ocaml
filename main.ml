@@ -79,7 +79,6 @@ let decomposition (lst:int64 list) =
   aux lst []
 ;;
 
-(* Test *)
 
 (* 定义函数print_bool_list来打印bool类型的list *)
 let rec print_bool_list = function
@@ -101,14 +100,6 @@ let rec print_int64_list lst =
       print_int64_list xs
 ;;
 
-Printf.printf "Test de decomposition\n";;
-let test_1_2 = [27L];;
-Printf.printf "Nombre initiale : ";;
-print_int64_list test_1_2;;
-let test_1_2_apres = decomposition test_1_2;;
-Printf.printf "List result : ";;
-print_bool_list test_1_2_apres;;
-Printf.printf "\n\n";;
 
 
 (*****************************************************************************************************************)
@@ -157,17 +148,6 @@ let completion bool_lst n =
     bool_lst
 ;;
 
-(* Test *)
-Printf.printf "Test de completion \n";;
-Printf.printf "List avant completion : ";;
-print_bool_list test_1_2_apres;;
-let test_1_3_8 = completion test_1_2_apres 8;;
-Printf.printf "List apres completion avec 8 elements : ";;
-print_bool_list test_1_3_8;;
-Printf.printf "List apres completion avec 3 elements : ";;
-let test_1_3_3 = completion test_1_2_apres 3;;
-print_bool_list test_1_3_3;;
-Printf.printf "\n\n";;
 
 (*************************************************************************************************************************)
 
@@ -220,14 +200,6 @@ let composition bool_lst : int64 list =
   List.map bool_list_to_int64 list_of_boollist
 ;;
 
-Printf.printf "Test de composition\n";;
-Printf.printf "List avant composition : ";;
-print_bool_list test_1_3_8;;
-Printf.printf "List apres composition : ";;
-let test_1_4 = composition test_1_3_8;;
-print_int64_list test_1_4;;
-Printf.printf "\n\n";;
-
 
 
 
@@ -241,14 +213,7 @@ Printf.printf "\n\n";;
 *)
 let table x n = completion (decomposition x) n;;
 
-(* Test *)
-Printf.printf "Test de table\n";;
-Printf.printf "Int64 list avant table : ";;
-print_int64_list test_1_4;;
-Printf.printf "Bool list apres table avec n = 10 : ";;
-let test_1_5 = table test_1_4 10;;
-print_bool_list test_1_5;;
-Printf.printf "\n\n";;
+
 
 
 
@@ -260,22 +225,27 @@ Printf.printf "\n\n";;
    return : une liste de int64 qui represente notre entier aleatoire
 *)
 let genAlea n = 
-  let rec aux tmp_lst count = 
-    if count > 64 then 
-      let tmp = tmp_lst @ [Random.int64 Int64.max_int] in
-      aux tmp (n-64)
+  let rec aux acc n = 
+    if n <= 0 then acc
     else
-      tmp_lst @ [Random.int64 (Int64.shift_left 1L n)]
+      let bits_to_generate = if n > 64 then 64 else n in  (* Determine bits to generate *)
+      let new_rand = if bits_to_generate = 64 then
+                       Random.int64 Int64.max_int  (* Generate a full 64-bit random number *)
+                     else
+                       let max_value_for_bits = Int64.sub (Int64.shift_left 1L bits_to_generate) 1L in
+                       Random.int64 max_value_for_bits  (* Generate a random number for the remaining bits *)
+      in
+      aux (new_rand :: acc) (n - bits_to_generate)  (* Recurse for the remaining bits *)
   in
   Random.self_init (); 
   aux [] n
 ;;
-(* Test *)
-Printf.printf "Test de genAlea \n";;
-let test_1_6 = genAlea 100;;
-Printf.printf "On suppose que N = 100, la result de genAlea :";;
-print_int64_list test_1_6;;
-Printf.printf "\n\n";;
+
+
+
+
+
+
 
 
 (* Q2.7 *)
@@ -366,13 +336,7 @@ let rec print_arbre_with_indent tree indent =
 ;;
 let print_arbre tree = print_arbre_with_indent tree "";;
 
-Printf.printf "Test de cons_arbre\n";;
-Printf.printf "Comme le example est 25899, donc on utilise le meme data\n";;
-Printf.printf "Le arbre : \n";;
-let test_2_8 = decomposition [25899L];;
-let test_2_8_arbre = cons_arbre test_2_8;;
-print_arbre test_2_8_arbre;;
-Printf.printf "\n\n";;
+
 
 
 (**********************************************************************************************************************)
@@ -387,12 +351,7 @@ let rec liste_feuilles arbre =
   | Noeud(left, _, right) -> (liste_feuilles !left) @ (liste_feuilles !right)
 ;;
 (* Test *)
-Printf.printf "Test de list_feuilles\n";;
-Printf.printf "On va utilise l'arbre precedent\n";;
-Printf.printf "La list de ordre prefixe : ";;
-let test_2_9 = liste_feuilles test_2_8_arbre;;
-print_bool_list test_2_9;;
-Printf.printf "\n\n";;
+
 
 (**********************************************************************************************************************)
 (* 3.10 *)
@@ -506,14 +465,6 @@ let print_listDejaVu l =
   aux l;
   print_newline ();;
 
-Printf.printf "Test de compressionParListe \n";;
-let dec = decomposition [25899L];;
-let tree = cons_arbre dec;;
-let result = compressionParListe (tree) [];;
-let node, ldv = result;;
-Printf.printf "ListeDejaVu apres compressionParListe : \n";;
-print_listDejaVu ldv;;
-Printf.printf "\n\n";;
 
 (********************************************************************************************************************)
 
@@ -553,8 +504,7 @@ let save_to_dot_file filename arbre =
   output_string oc dot_content;
   close_out oc
 
-let my_tree = tree;;
-save_to_dot_file "my_tree.dot" my_tree
+
 
 
 
@@ -617,8 +567,7 @@ let save_to_dot_file_ldv filename ldv =
   
   
   
-let my_ldv = ldv;;
-save_to_dot_file_ldv "my_ldv.dot" my_ldv;;
+
 
 
 (***********************************************************)
@@ -661,13 +610,7 @@ let compressionParArbre (arbre: arbre ref) =
   arbre := result;
   arbre;;
 
-(* Test *)
-Printf.printf "Test de compressionParArbre \n";;
-let dec_c = decomposition [25899L];;
-let tree_c = cons_arbre dec;;
-let result_c = compressionParArbre (ref tree_c);;
-Printf.printf "L'arbre apres compressionParArbre : \n";;
-print_arbre !result_c;;
+
 
 
 (* 4.18 AND Test *)
@@ -722,7 +665,7 @@ let save_to_dot_file_c filename arbre =
   output_string oc dot_content;
   close_out oc;;
 
-save_to_dot_file_c "my_arbre.dot" !result_c;;
+
 
 
 (******************************************************)
@@ -774,9 +717,9 @@ let rec count_noeuds (a: arbre) : int =
       (* 如果是节点，计数增加1，并递归计算左右子树的节点数 *)
 ;;
 
-let nombre_N = 128;;(* 问题在这里 *)
+let nombre_N = 512;;(* 问题在这里 *)
 let nombre_start = 1;;
-let nombre_end = 500;;
+let nombre_end = 1000;;
 let lst_nombre_Noeud = ref [];;  (* 使用引用来存储列表 *)
 
 for i = nombre_start to nombre_end do
@@ -800,5 +743,94 @@ let save_list_to_csv filename lst =
 
 (* 调用函数保存CSV文件 *)
 let csv_filename = "nombre_noeuds.csv";;
-save_list_to_csv csv_filename lst_nombre_Noeud;;
+save_list_to_csv csv_filename !lst_nombre_Noeud;;
+
+(**********************************************************************************************************************)
+ (* Test *)
  
+Printf.printf "Test de decomposition\n";;
+let test_1_2 = [27L];;
+Printf.printf "Nombre initiale : ";;
+print_int64_list test_1_2;;
+let test_1_2_apres = decomposition test_1_2;;
+Printf.printf "List result : ";;
+print_bool_list test_1_2_apres;;
+Printf.printf "\n\n";;
+
+Printf.printf "Test de completion \n";;
+Printf.printf "List avant completion : ";;
+print_bool_list test_1_2_apres;;
+let test_1_3_8 = completion test_1_2_apres 8;;
+Printf.printf "List apres completion avec 8 elements : ";;
+print_bool_list test_1_3_8;;
+Printf.printf "List apres completion avec 3 elements : ";;
+let test_1_3_3 = completion test_1_2_apres 3;;
+print_bool_list test_1_3_3;;
+Printf.printf "\n\n";;
+
+Printf.printf "Test de composition\n";;
+Printf.printf "List avant composition : ";;
+print_bool_list test_1_3_8;;
+Printf.printf "List apres composition : ";;
+let test_1_4 = composition test_1_3_8;;
+print_int64_list test_1_4;;
+Printf.printf "\n\n";;
+
+Printf.printf "Test de table\n";;
+Printf.printf "Int64 list avant table : ";;
+print_int64_list test_1_4;;
+Printf.printf "Bool list apres table avec n = 10 : ";;
+let test_1_5 = table test_1_4 10;;
+print_bool_list test_1_5;;
+Printf.printf "\n\n";;
+
+
+(* Test *)
+Printf.printf "Test de genAlea \n";;
+let test_1_6 = genAlea 512;;
+Printf.printf "On suppose que N = 512, la result de genAlea :";;
+print_int64_list test_1_6;;
+Printf.printf "\n\n";;
+
+
+Printf.printf "Test de cons_arbre\n";;
+Printf.printf "Comme le example est 25899, donc on utilise le meme data\n";;
+Printf.printf "Le arbre : \n";;
+let test_2_8 = decomposition [25899L];;
+let test_2_8_arbre = cons_arbre test_2_8;;
+print_arbre test_2_8_arbre;;
+Printf.printf "\n\n";;
+
+
+Printf.printf "Test de list_feuilles\n";;
+Printf.printf "On va utilise l'arbre precedent\n";;
+Printf.printf "La list de ordre prefixe : ";;
+let test_2_9 = liste_feuilles test_2_8_arbre;;
+print_bool_list test_2_9;;
+Printf.printf "\n\n";;
+
+
+Printf.printf "Test de compressionParListe \n";;
+let dec = decomposition [25899L];;
+let tree = cons_arbre dec;;
+let result = compressionParListe (tree) [];;
+let node, ldv = result;;
+Printf.printf "ListeDejaVu apres compressionParListe : \n";;
+print_listDejaVu ldv;;
+Printf.printf "\n\n";;
+
+let my_tree = tree;;
+save_to_dot_file "my_tree.dot" my_tree
+
+let my_ldv = ldv;;
+save_to_dot_file_ldv "my_ldv.dot" my_ldv;;
+
+(* Test *)
+Printf.printf "Test de compressionParArbre \n";;
+let dec_c = decomposition [25899L];;
+let tree_c = cons_arbre dec;;
+let result_c = compressionParArbre (ref tree_c);;
+Printf.printf "L'arbre apres compressionParArbre : \n";;
+print_arbre !result_c;;
+
+save_to_dot_file_c "my_arbre.dot" !result_c;;
