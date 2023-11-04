@@ -715,10 +715,11 @@ let rec count_noeuds (a: arbre) : int =
       (* 如果是节点，计数增加1，并递归计算左右子树的节点数 *)
 ;;
 
-(* taux compression AND complexite temp*)
+(* taux compression AND complexite memoire*)
 let lst_nombre_Noeud_avant = ref [];; (* 用来存原来的arbre的大小 *)
-let lst_nombre_Noeud_apres = ref [];; (* 用来存原来的arbre的大小 *)
+let lst_nombre_Noeud_apres = ref [];; (* 用来存压缩后的arbre的大小 *)
 let lst_taux_compression = ref [];;
+let lst_Noeud_Bit = ref [];;
 
 let start_6_20 = 1;;
 let end_6_20 = 1500;;
@@ -750,11 +751,16 @@ let save_taux_to_csv filename lst_ref =
   ) (List.rev !lst_ref);  (* 反转列表以得到正确的顺序 *)
   close_out oc;;
 
-
+let save_apres_list_to_csv file_name list_ref =
+  let oc = open_out file_name in
+  List.iter (fun value -> Printf.fprintf oc "%d\n" value) (List.rev !list_ref);
+  close_out oc;;
+  
 
 
 
 save_taux_to_csv "taux_compression.csv" lst_taux_compression;;
+save_apres_list_to_csv "nombre_noeuds_apres.csv" lst_nombre_Noeud_apres;;
 
 
 
