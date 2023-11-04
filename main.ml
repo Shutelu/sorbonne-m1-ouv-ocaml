@@ -193,7 +193,7 @@ let rec split_list_to_sublists lst =
 (* Q1.4 | 
   description : prend une liste de bits (bool) et contruction l'entier qui le represente 
   param : une liste de boolean qui represente un nb binaire
-  return : entier que le binaire represente sous forme de int64 list
+  return : entier que le binaire represente sous forme de bigInteger
 *)
 let composition bool_lst : bigInteger =
   let list_of_boollist = split_list_to_sublists bool_lst in
@@ -207,7 +207,7 @@ let composition bool_lst : bigInteger =
 (********************************************************************************************************************)
 (* Q1.5 |
   description : table de verité, prendre un entier64 'x', le decompose en base 2, le complete pour faire la taille n
-  param x : entier64 (int64 list)
+  param x : entier64 (bigInteger)
   param n : taille qu'aura la table de verité
   return : liste boolean (la table de verité)
 *)
@@ -496,20 +496,11 @@ let to_dot arbre =
   Buffer.contents buffer
 
 
-
-
 let save_to_dot_file filename arbre =
   let dot_content = to_dot arbre in
   let oc = open_out filename in
   output_string oc dot_content;
   close_out oc
-
-
-
-
-
-
-
 
 
   (* 3.14 AND Test *)
@@ -842,7 +833,7 @@ print_int64_list test_1_4;;
 Printf.printf "\n\n";;
 
 Printf.printf "Test de table\n";;
-Printf.printf "Int64 list avant table : ";;
+Printf.printf "bigInteger avant table : ";;
 print_int64_list test_1_4;;
 Printf.printf "Bool list apres table avec n = 10 : ";;
 let test_1_5 = table test_1_4 10;;
