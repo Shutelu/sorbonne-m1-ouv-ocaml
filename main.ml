@@ -719,7 +719,7 @@ let rec count_noeuds (a: arbre) : int =
 let lst_nombre_Noeud_avant = ref [];; (* 用来存原来的arbre的大小 *)
 let lst_nombre_Noeud_apres = ref [];; (* 用来存原来的arbre的大小 *)
 let lst_taux_compression = ref [];;
-let start_6_20 = 10;;
+let start_6_20 = 1;;
 let end_6_20 = 1500;;
 
 for i = start_6_20 to end_6_20 do
@@ -734,7 +734,7 @@ for i = start_6_20 to end_6_20 do
   lst_nombre_Noeud_apres := noeuds_apres :: !lst_nombre_Noeud_apres;  (* 保存压缩后的节点数 *)
 
   (* 计算并保存压缩率，注意避免除以0的情况 *)
-  let taux = if noeuds_avant = 0 then 1. else 1. -. (float_of_int noeuds_apres) /. (float_of_int noeuds_avant) in
+  let taux =  1. -. (float_of_int noeuds_apres) /. (float_of_int noeuds_avant) in
   lst_taux_compression := taux :: !lst_taux_compression;  (* 保存压缩率 *)
 done;;
 
