@@ -767,7 +767,7 @@ save_taux_to_csv "taux_compression.csv" lst_taux_compression;;
 
 
 
-let nombre_N = 1000;;
+let nombre_N = 512;;
 let nombre_start = 1;;
 let nombre_end = 1000;;
 let lst_nombre_Noeud = ref [];;  (* 使用引用来存储列表 *)

@@ -11,9 +11,9 @@ with open('nombre_noeuds.csv', 'r') as csvfile:
 
 # 绘制柱状图
 plt.hist(noeuds_counts, bins=range(0, 1001, 1), edgecolor='black')  # bins的范围和大小根据需要调整
-plt.title('Graphe de Noeuds')
+plt.title('Graphe de Noeuds dans ZDD')
 plt.xlabel('Nombre de Noeuds')
-plt.ylabel('Probabilité(%) ')
+plt.ylabel('Probabilité(%) d\'apparition ')
 
 # 保存图像到本地文件
 plt.savefig('distribution_noeuds.png', format='png')
