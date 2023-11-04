@@ -65,7 +65,7 @@ let trim_list lst =
   parametre 'list' : liste de int64
   return : liste boolean
 *)
-let decomposition (lst:int64 list) =
+let decomposition (lst:bigInteger) =
   let rec aux l tmp_lst =
     (* on prend le binaire de chaque element sous forme de liste boolean *)
     let binaire = decomposition_aux (List.hd l) in
@@ -195,7 +195,7 @@ let rec split_list_to_sublists lst =
   param : une liste de boolean qui represente un nb binaire
   return : entier que le binaire represente sous forme de int64 list
 *)
-let composition bool_lst : int64 list =
+let composition bool_lst : bigInteger =
   let list_of_boollist = split_list_to_sublists bool_lst in
   List.map bool_list_to_int64 list_of_boollist
 ;;
@@ -355,7 +355,7 @@ let rec liste_feuilles arbre =
 
 (**********************************************************************************************************************)
 (* 3.10 *)
-type listDejaVue = (int64 list * arbre) list;;
+type listDejaVue = (bigInteger * arbre) list;;
 
 (* Q3.11 |
   description : recherche si element est dans la premiere composante de ldv
@@ -734,9 +734,10 @@ for i = start_6_20 to end_6_20 do
   lst_nombre_Noeud_apres := noeuds_apres :: !lst_nombre_Noeud_apres;  (* 保存压缩后的节点数 *)
 
   (* 计算并保存压缩率，注意避免除以0的情况 *)
-  let taux = if noeuds_avant = 0 then 0. else (float_of_int noeuds_apres) /. (float_of_int noeuds_avant) in
+  let taux = if noeuds_avant = 0 then 1. else 1. -. (float_of_int noeuds_apres) /. (float_of_int noeuds_avant) in
   lst_taux_compression := taux :: !lst_taux_compression;  (* 保存压缩率 *)
 done;;
+
 
 (* 保存压缩率列表到CSV文件 *)
 let save_taux_to_csv filename lst_ref =
@@ -749,6 +750,15 @@ let save_taux_to_csv filename lst_ref =
 
 save_taux_to_csv "taux_compression.csv" lst_taux_compression;;
 
+(* 
+压缩率和2的次方有关 
+当arbre的Noeuds的数量是2^n的时候，也就是说一个grand entier的bits数量是2^n
+这个grandInteger的最大数位的右边没有很多的false
+(根据cons_arbre得出，如果一个grandInteger的bits数正好是2^n，那么就不需要进行false的补位)
+这个时候对arbre的压缩效率是最低的
+反过来，如果它的bits数量刚好是2^n+1，那么就意味着它的右边有有至少2^n个false，也就是说
+它的压缩效率最低就有50%，而它本身的压缩效率再加上去，就会形成图里的周期
+*)
 
 
 
