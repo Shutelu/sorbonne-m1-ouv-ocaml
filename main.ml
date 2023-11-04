@@ -706,9 +706,7 @@ compressionParArbre的时间复杂性为O(n^2)和空间复杂性为O(n)。
 
 (*************************************************************************)
 
-(* 6.21 *)
-
-
+(* 6.20 *)
 let rec count_noeuds (a: arbre) : int =
   match a with
   | Feuille _ -> 0  (* 如果是叶子节点，不增加计数 *)
@@ -717,10 +715,53 @@ let rec count_noeuds (a: arbre) : int =
       (* 如果是节点，计数增加1，并递归计算左右子树的节点数 *)
 ;;
 
-let nombre_N = 512;;(* 问题在这里 *)
+(* taux compression*)
+let lst_nombre_Noeud_avant = ref [];; (* 用来存原来的arbre的大小 *)
+let lst_nombre_Noeud_apres = ref [];; (* 用来存原来的arbre的大小 *)
+let lst_taux_compression = ref [];;
+let start_6_20 = 10;;
+let end_6_20 = 1500;;
+
+for i = start_6_20 to end_6_20 do
+  let list_1 = genAlea i in  (* 生成随机列表 *)
+  let list_2 = decomposition list_1 in
+  let arbre_1_ref = ref (cons_arbre list_2) in  (* 生成树 *)
+  let noeuds_avant = count_noeuds !arbre_1_ref in  (* 计算原始树的节点数 *)
+  lst_nombre_Noeud_avant := noeuds_avant :: !lst_nombre_Noeud_avant;  (* 保存原始节点数 *)
+
+  ignore (compressionParArbre arbre_1_ref);  (* 压缩树 *)
+  let noeuds_apres = count_noeuds !arbre_1_ref in  (* 计算压缩后的树的节点数 *)
+  lst_nombre_Noeud_apres := noeuds_apres :: !lst_nombre_Noeud_apres;  (* 保存压缩后的节点数 *)
+
+  (* 计算并保存压缩率，注意避免除以0的情况 *)
+  let taux = if noeuds_avant = 0 then 0. else (float_of_int noeuds_apres) /. (float_of_int noeuds_avant) in
+  lst_taux_compression := taux :: !lst_taux_compression;  (* 保存压缩率 *)
+done;;
+
+(* 保存压缩率列表到CSV文件 *)
+let save_taux_to_csv filename lst_ref =
+  let oc = open_out filename in
+  Printf.fprintf oc "Index,TauxCompression\n"; (* 写入头部 *)
+  List.iteri (fun i taux ->  (* 使用iteri来同时获取索引和压缩率 *)
+    Printf.fprintf oc "%d,%f\n" i taux
+  ) (List.rev !lst_ref);  (* 反转列表以得到正确的顺序 *)
+  close_out oc;;
+
+save_taux_to_csv "taux_compression.csv" lst_taux_compression;;
+
+
+
+
+(* 6.21 *)
+
+
+
+
+let nombre_N = 1000;;
 let nombre_start = 1;;
 let nombre_end = 1000;;
 let lst_nombre_Noeud = ref [];;  (* 使用引用来存储列表 *)
+
 
 for i = nombre_start to nombre_end do
   let grand_nombre = genAlea nombre_N in
