@@ -101,15 +101,7 @@ let decomposition (lst:bigInteger) =
 ;;
 
 
-(* 定义函数print_bool_list来打印bool类型的list *)
-let rec print_bool_list = function
-  | [] -> () (* 如果list为空，不打印任何东西 *)
-  | [x] -> print_endline (string_of_bool x) (* 如果是list的最后一个元素，打印后换行 *)
-  | x :: xs -> 
-      print_string (string_of_bool x); (* 打印当前元素 *)
-      print_string "; "; (* 打印元素之间的分隔符 *)
-      print_bool_list xs (* 递归地打印剩余的list *)
-;;
+
 
 let rec print_int64_list lst =
   match lst with
@@ -336,29 +328,6 @@ let cons_arbre bool_lst =
   in
   aux repaired_lst 1
 ;;
-(* Test *)
-
-let rec print_arbre = function
-  | Feuille b -> Printf.printf "Feuille(%B) " !b
-  | Noeud(left, n, right) -> 
-      Printf.printf "Noeud(%d) (" n;
-      print_arbre !left;
-      Printf.printf ") (";
-      print_arbre !right;
-      Printf.printf ")";;
-
-let rec print_arbre_with_indent tree indent =
-  match tree with
-  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent !b
-  | Noeud(left, n, right) ->
-      Printf.printf "%sNoeud(%d)\n" indent n;
-      print_arbre_with_indent !left (indent ^ "  ");
-      print_arbre_with_indent !right (indent ^ "  ")
-;;
-let print_arbre tree = print_arbre_with_indent tree "";;
-
-
-
 
 (**********************************************************************************************************************)
 (* Q2.9 |
@@ -684,36 +653,34 @@ let save_to_dot_file_c filename arbre =
 (* 5.19 *)
 
 (*
-compressionParListe
-时间复杂性：
+CompressionParListe : 
 
-对于每个节点，算法都会计算grand_entier，这需要遍历整个树，因此复杂性为O(n)，其中n为树的节点数。
-recherche_ldv函数在最坏的情况下需要遍历整个ldv列表。假设ldv的长度为m，则该函数的复杂性为O(m)。
-对于每个节点，算法都可能需要递归地调用自身两次（一次对左子树，一次对右子树）。
-综上，算法的总时间复杂性为O(n^2 * m)。这是因为对于每个节点，我们都可能需要遍历整个树并搜索整个ldv列表。
+Complexité Temporelle :
+Pour chaque nœud, l'algorithme calcule un grand_entier, ce qui nécessite de parcourir l'ensemble de l'arbre, donc la complexité est de O(n), où n est le nombre de nœuds dans l'arbre.
+La fonction recherche_ldv, dans le pire des cas, doit parcourir la liste ldv entière. Si la longueur de ldv est m, alors la complexité de cette fonction est O(m).
+Pour chaque nœud, l'algorithme peut avoir besoin d'appeler récursivement lui-même deux fois (une fois pour le sous-arbre gauche et une fois pour le sous-arbre droit).
+Ainsi, la complexité temporelle totale de l'algorithme est de O(n^2 * m). Cela est dû au fait que pour chaque nœud, nous pourrions avoir à parcourir l'ensemble de l'arbre et à rechercher dans toute la liste ldv.
 
-空间复杂性：
+Complexité Memoire :
+La principale consommation d'espace provient de la liste ldv et de la table de hachage node_map. Dans le pire des cas, la taille de ces deux peut atteindre n.
+Par conséquent, la complexité spatiale est de O(n).
 
-主要的空间消耗来自于ldv列表和node_map哈希表。在最坏的情况下，这两者的大小都可能达到n。
-因此，空间复杂性为O(n)。
+CompressionParArbre:
 
-compressionParArbre
-时间复杂性：
+Complexité Temporelle :
+Similaire à compressionParListe, pour chaque nœud, l'algorithme calcule un grand_entier, ce qui nécessite de parcourir l'ensemble de l'arbre, donc la complexité est de O(n).
+La complexité de la fonction recherche_ldv est de O(1), car elle est toujours appelée sur une liste vide.
+Pour chaque nœud, l'algorithme peut avoir besoin d'appeler récursivement lui-même deux fois.
+Ainsi, la complexité temporelle totale de l'algorithme est de O(n^2).
 
-与compressionParListe类似，对于每个节点，算法都会计算grand_entier，这需要遍历整个树，因此复杂性为O(n)。
-recherche_ldv函数的复杂性为O(1)，因为它总是在一个空列表上调用。
-对于每个节点，算法都可能需要递归地调用自身两次。
-综上，算法的总时间复杂性为O(n^2)。
+Complexité Memoire :
+Cet algorithme n'utilise pas la liste ldv, donc la principale consommation d'espace provient de la pile d'appels récursifs.
+Par conséquent, la complexité spatiale est de O(n).
 
-空间复杂性：
+Conclusion :
 
-该算法不使用ldv列表，因此主要的空间消耗来自于递归调用栈。
-因此，空间复杂性为O(n)。
-
-结论：
-
-compressionParListe的时间复杂性为O(n^2 * m)和空间复杂性为O(n)。
-compressionParArbre的时间复杂性为O(n^2)和空间复杂性为O(n)。
+La complexité temporelle de compressionParListe est de O(n^2 * m) et la complexité spatiale est de O(n).
+La complexité temporelle de compressionParArbre est de O(n^2) et la complexité spatiale est de O(n).
 *)
 
 (*************************************************************************)
@@ -818,15 +785,36 @@ let save_list_to_csv filename lst =
 let csv_filename = "nombre_noeuds.csv";;
 save_list_to_csv csv_filename !lst_nombre_Noeud;;
 
-(* ============================================== Fonction de affichage des tests*)
+(* ================================================================== Fonction de affichage des tests*)
 (* affichage pour le dev *)
 let print_int64_list list =
   let string_of_int64_elems elems =
     let strs = List.map (fun i -> Printf.sprintf "%Ld" i) elems in
     String.concat "; " strs
   in
-  Printf.printf "on obtient : [%s]\n" (string_of_int64_elems list);;
+  Printf.printf "on obtient : [%s]\n" (string_of_int64_elems list)
+;;
 
+let rec print_arbre_with_indent tree indent =
+  match tree with
+  | Feuille b -> Printf.printf "%sFeuille(%B)\n" indent !b
+  | Noeud(left, n, right) ->
+      Printf.printf "%sNoeud(%d)\n" indent n;
+      print_arbre_with_indent !left (indent ^ "  ");
+      print_arbre_with_indent !right (indent ^ "  ")
+;;
+
+let print_arbre tree = print_arbre_with_indent tree "";;
+
+(* 定义函数print_bool_list来打印bool类型的list *)
+let rec print_bool_list = function
+  | [] -> () (* 如果list为空，不打印任何东西 *)
+  | [x] -> print_endline (string_of_bool x) (* 如果是list的最后一个元素，打印后换行 *)
+  | x :: xs -> 
+      print_string (string_of_bool x); (* 打印当前元素 *)
+      print_string "; "; (* 打印元素之间的分隔符 *)
+      print_bool_list xs (* 递归地打印剩余的list *)
+;;
 (**************************************************************************************)
 (*======================================= TEST =======================================*)
 (**************************************************************************************)
@@ -858,10 +846,10 @@ let sujet_trente_huit = decomposition [38L];;
 let comp_taille4 = completion sujet_trente_huit 4;;
 let comp_taille8 = completion sujet_trente_huit 8;;
 
-Printf.printf "Resultat completion pour une taille de 4 sur decomp de 38\n" ;;
+Printf.printf "Resultat completion pour une taille de 4 sur decomp de 38 :\n" ;;
 List.iter (fun b -> Printf.printf "%b " b) comp_taille4;;
 Printf.printf "\n\n";;
-Printf.printf "Resultat completion pour une taille de 8 sur decomp de 38\n" ;;
+Printf.printf "Resultat completion pour une taille de 8 sur decomp de 38 :\n" ;;
 List.iter (fun b -> Printf.printf "%b " b) comp_taille8;;
 Printf.printf "\n\n";;
 (***********************)
@@ -897,93 +885,95 @@ Printf.printf "\n" ;;
 (* debut TEST table *)
 (********************)
 Printf.printf "======================================= Affichage des resultats de table: \n\n";;
+let table_taille4 = table [38L] 4;;
+let table_taille11 = table [38L] 11;;
+
+Printf.printf "table de 38 de taille 4 :\n";;
+List.iter (fun i -> Printf.printf "%b " i) table_taille4;;
+Printf.printf "\n\n" ;;
+Printf.printf "table de 38 de taille 11 :\n";;
+List.iter (fun i -> Printf.printf "%b " i) table_taille11;;
+Printf.printf "\n\n" ;;
 (******************)
 (* fin TEST table *)
 (******************)
 
-Printf.printf "Test de decomposition\n";;
-let test_1_2 = [27L];;
-Printf.printf "Nombre initiale : ";;
-print_int64_list test_1_2;;
-let test_1_2_apres = decomposition test_1_2;;
-Printf.printf "List result : ";;
-print_bool_list test_1_2_apres;;
-Printf.printf "\n\n";;
+(**********************)
+(* debut TEST genAlea *)
+(**********************)
+Printf.printf "======================================= Affichage des resultats de genAlea: \n\n";;
+let entier_aleatoire_100b = genAlea 100;;
+let entier_aleatoire_512b = genAlea 512;;
 
-Printf.printf "Test de completion \n";;
-Printf.printf "List avant completion : ";;
-print_bool_list test_1_2_apres;;
-let test_1_3_8 = completion test_1_2_apres 8;;
-Printf.printf "List apres completion avec 8 elements : ";;
-print_bool_list test_1_3_8;;
-Printf.printf "List apres completion avec 3 elements : ";;
-let test_1_3_3 = completion test_1_2_apres 3;;
-print_bool_list test_1_3_3;;
-Printf.printf "\n\n";;
+Printf.printf "entier64 aleatoire sur 100 bits :\n";;
+print_int64_list entier_aleatoire_100b;;
+Printf.printf "\n" ;;
+Printf.printf "entier64 aleatoire sur 512 bits :\n";; (* 512/64 = 8*)
+print_int64_list entier_aleatoire_512b;;
+Printf.printf "\n" ;;
+(********************)
+(* fin TEST genAlea *)
+(********************)
 
-Printf.printf "Test de composition\n";;
-Printf.printf "List avant composition : ";;
-print_bool_list test_1_3_8;;
-Printf.printf "List apres composition : ";;
-let test_1_4 = composition test_1_3_8;;
-print_int64_list test_1_4;;
-Printf.printf "\n\n";;
+(*************************)
+(* debut TEST cons_arbre *)
+(*************************)
+Printf.printf "======================================= Affichage des resultats de cons_arbre: \n\n";;
+let dec_25899 = decomposition [25899L];;
+let tree_25899 = cons_arbre dec_25899;;
 
-Printf.printf "Test de table\n";;
-Printf.printf "bigInteger avant table : ";;
-print_int64_list test_1_4;;
-Printf.printf "Bool list apres table avec n = 10 : ";;
-let test_1_5 = table test_1_4 10;;
-print_bool_list test_1_5;;
-Printf.printf "\n\n";;
+Printf.printf "exemple de construction d'arbre sur l'entier64 25899 :\n";;
+print_arbre tree_25899;;
+Printf.printf "\n";;
+(***********************)
+(* fin TEST cons_arbre *)
+(***********************)
 
+(*************************)
+(* debut TEST cons_arbre *)
+(*************************)
+Printf.printf "======================================= Affichage des resultats de liste_feuilles: \n\n";;
+let arbre_25899 = cons_arbre (decomposition [25899L]);;
+let feuille_of_25899 = liste_feuilles arbre_25899;;
 
-(* Test *)
-Printf.printf "Test de genAlea \n";;
-let test_1_6 = genAlea 512;;
-Printf.printf "On suppose que N = 512, la result de genAlea :";;
-print_int64_list test_1_6;;
-Printf.printf "\n\n";;
+Printf.printf "Resultat des feuilles pour la racine 25899 :\n";;
+print_bool_list feuille_of_25899;;
+Printf.printf "\n";;
+(***********************)
+(* fin TEST cons_arbre *)
+(***********************)
 
+(**********************************)
+(* debut TEST compressionParListe *)
+(**********************************)
+Printf.printf "======================================= Affichage des resultats de LDV: \n\n";;
+let compressionParListe_arbre_25899 = cons_arbre (decomposition [25899L]);;
+let root, ldv = compressionParListe compressionParListe_arbre_25899 [];;
 
-Printf.printf "Test de cons_arbre\n";;
-Printf.printf "Comme le example est 25899, donc on utilise le meme data\n";;
-Printf.printf "Le arbre : \n";;
-let test_2_8 = decomposition [25899L];;
-let test_2_8_arbre = cons_arbre test_2_8;;
-print_arbre test_2_8_arbre;;
-Printf.printf "\n\n";;
-
-
-Printf.printf "Test de list_feuilles\n";;
-Printf.printf "On va utilise l'arbre precedent\n";;
-Printf.printf "La list de ordre prefixe : ";;
-let test_2_9 = liste_feuilles test_2_8_arbre;;
-print_bool_list test_2_9;;
-Printf.printf "\n\n";;
-
-
-Printf.printf "Test de compressionParListe \n";;
-let dec = decomposition [25899L];;
-let tree = cons_arbre dec;;
-let result = compressionParListe (tree) [];;
-let node, ldv = result;;
 Printf.printf "ListeDejaVu apres compressionParListe : \n";;
 print_listDejaVu ldv;;
-Printf.printf "\n\n";;
+Printf.printf "\n";;
+(********************************)
+(* fin TEST compressionParListe *)
+(********************************)
 
-let my_tree = tree;;
+(**********************************)
+(* debut TEST compressionParArbre *)
+(**********************************)
+Printf.printf "======================================= Affichage des resultats de compressionParArbre: \n\n";;
+let tree_c = cons_arbre (decomposition [25899L]);;
+let result_c = compressionParArbre (ref tree_c);;
+
+Printf.printf "L'arbre entier64 25899 apres compressionParArbre : \n";;
+print_arbre !result_c;;
+(********************************)
+(* fin TEST compressionParArbre *)
+(********************************)
+
+let my_tree = cons_arbre (decomposition [25899L]);;
 save_to_dot_file "my_tree.dot" my_tree
 
 let my_ldv = ldv;;
 save_to_dot_file_ldv "my_ldv.dot" my_ldv;;
-
-(* Test *)
-Printf.printf "Test de compressionParArbre \n";;
-let dec_c = decomposition [25899L];;
-let tree_c = cons_arbre dec;;
-let result_c = compressionParArbre (ref tree_c);;
-Printf.printf "L'arbre apres compressionParArbre : \n";;
-print_arbre !result_c;;
 
 save_to_dot_file_c "my_arbre.dot" !result_c;;
