@@ -690,15 +690,15 @@ La complexite temporelle de compressionParArbre est de O(n) et la complexite spa
 (* 6.20 *)
 let rec count_noeuds (a: arbre) : int =
   match a with
-  | Feuille _ -> 0  (* 如果是叶子节点，不增加计数 *)
+  | Feuille _ -> 0  (* S'il s'agit d'un nœud feuille, le nombre n'est pas augmenté. *)
   | Noeud (left, _, right) ->
       1 + (count_noeuds !left) + (count_noeuds !right)
-      (* 如果是节点，计数增加1，并递归计算左右子树的节点数 *)
+      (* S'il s'agit d'un nœud, le nombre est augmenté de 1 et le nombre de nœuds dans les sous-arbres gauche et droit est calculé de manière récursive. *)
 ;;
 
 (* taux compression AND complexite memoire*)
-let lst_nombre_Noeud_avant = ref [];; (* 用来存原来的arbre的大小 *)
-let lst_nombre_Noeud_apres = ref [];; (* 用来存压缩后的arbre的大小 *)
+let lst_nombre_Noeud_avant = ref [];; (* La taille utilisée pour stocker l'arbre d'origine *)
+let lst_nombre_Noeud_apres = ref [];; (* La taille utilisée pour stocker l'arbre compressé *)
 let lst_taux_compression = ref [];;
 let lst_Noeud_Bit = ref [];;
 
@@ -706,30 +706,30 @@ let start_6_20 = 1;;
 let end_6_20 = 1500;;
 
 for i = start_6_20 to end_6_20 do
-  let list_1 = genAlea i in  (* 生成随机列表 *)
+  let list_1 = genAlea i in  (* Générer une liste aléatoire *)
   let list_2 = decomposition list_1 in
-  let arbre_1_ref = ref (cons_arbre list_2) in  (* 生成树 *)
-  let noeuds_avant = count_noeuds !arbre_1_ref in  (* 计算原始树的节点数 *)
-  lst_nombre_Noeud_avant := noeuds_avant :: !lst_nombre_Noeud_avant;  (* 保存原始节点数 *)
+  let arbre_1_ref = ref (cons_arbre list_2) in  (* Spanning Tree *)
+  let noeuds_avant = count_noeuds !arbre_1_ref in  (* Comptez le nombre de nœuds dans l'arborescence d'origine *)
+  lst_nombre_Noeud_avant := noeuds_avant :: !lst_nombre_Noeud_avant;  (* Enregistrez le nombre initial de nœuds *)
 
-  ignore (compressionParArbre arbre_1_ref);  (* 压缩树 *)
+  ignore (compressionParArbre arbre_1_ref);  (* Compression *)
 
-  let noeuds_apres = count_noeuds !arbre_1_ref in  (* 计算压缩后的树的节点数 *)
-  lst_nombre_Noeud_apres := noeuds_apres :: !lst_nombre_Noeud_apres;  (* 保存压缩后的节点数 *)
+  let noeuds_apres = count_noeuds !arbre_1_ref in  (* Calculer le nombre de nœuds dans l'arborescence compressée *)
+  lst_nombre_Noeud_apres := noeuds_apres :: !lst_nombre_Noeud_apres;  (* Enregistrez le nombre de nœuds *)
 
-  (* 计算并保存压缩率，注意避免除以0的情况 *)
+  
   let taux =  1. -. (float_of_int noeuds_apres) /. (float_of_int noeuds_avant) in
-  lst_taux_compression := taux :: !lst_taux_compression;  (* 保存压缩率 *)
+  lst_taux_compression := taux :: !lst_taux_compression;  (* Enregistrer le taux de compression *)
 done;;
 
 
-(* 保存压缩率列表到CSV文件 *)
+(* Enregistrer la liste des taux de compression dans un fichier CSV *)
 let save_taux_to_csv filename lst_ref =
   let oc = open_out filename in
-  Printf.fprintf oc "Index,TauxCompression\n"; (* 写入头部 *)
-  List.iteri (fun i taux ->  (* 使用iteri来同时获取索引和压缩率 *)
+  Printf.fprintf oc "Index,TauxCompression\n"; (* Écrire l'en-tête *)
+  List.iteri (fun i taux ->  (* Utilisez iteri pour obtenir à la fois l'index et le taux de compression *)
     Printf.fprintf oc "%d,%f\n" i taux
-  ) (List.rev !lst_ref);  (* 反转列表以得到正确的顺序 *)
+  ) (List.rev !lst_ref);  (* Inversez la liste pour obtenir le bon ordre *)
   close_out oc;;
 
 let save_apres_list_to_csv file_name list_ref =
@@ -742,17 +742,14 @@ let save_apres_list_to_csv file_name list_ref =
 
 save_taux_to_csv "taux_compression.csv" lst_taux_compression;;
 save_apres_list_to_csv "nombre_noeuds_apres.csv" lst_nombre_Noeud_apres;;
-
-
-
-(* 
-压缩率和2的次方有关 
-当arbre的Noeuds的数量是2^n的时候，也就是说一个grand entier的bits数量是2^n
-这个grandInteger的最大数位的右边没有很多的false
-(根据cons_arbre得出，如果一个grandInteger的bits数正好是2^n，那么就不需要进行false的补位)
-这个时候对arbre的压缩效率是最低的
-反过来，如果它的bits数量刚好是2^n+1，那么就意味着它的右边有有至少2^n个false，也就是说
-它的压缩效率最低就有50%，而它本身的压缩效率再加上去，就会形成图里的周期
+(*
+Le taux de compression est lié à la puissance de 2
+Lorsque le nombre de Noeuds d'arbre est de 2^n, c'est-à-dire que le nombre de bits d'un grand entier est de 2^n
+Il n'y a pas beaucoup de false à droite du plus grand chiffre de ce grandInteger.
+(Selon cons_arbre, si le nombre de bits d'un grandInteger est exactement 2^n, alors il n'est pas nécessaire de remplir false)
+À l’heure actuelle, l’efficacité de compression de l’arbre est la plus faible.
+En revanche, si son nombre de bits est exactement 2^n+1(On va utilise completion donc il y a 2^(n+1) bits), cela signifie qu'il y a au moins 2^n false sur son côté droit, c'est-à-dire
+Son efficacité de compression est aussi faible que 50 %, et l’addition de sa propre efficacité de compression formera le cycle illustré.
 *)
 
 
@@ -765,29 +762,28 @@ save_apres_list_to_csv "nombre_noeuds_apres.csv" lst_nombre_Noeud_apres;;
 let nombre_N = 512;;
 let nombre_start = 1;;
 let nombre_end = 1000;;
-let lst_nombre_Noeud = ref [];;  (* 使用引用来存储列表 *)
+let lst_nombre_Noeud = ref [];;  (* Utiliser des références pour stocker des listes *)
 
 
 for i = nombre_start to nombre_end do
   let grand_nombre = genAlea nombre_N in
   let list_grand_nombre = decomposition grand_nombre in
   let arbre_grand_nombre_ref = ref (cons_arbre list_grand_nombre) in
-  let _ = compressionParArbre arbre_grand_nombre_ref in  (* 压缩Arbre *)
-  let count = count_noeuds !arbre_grand_nombre_ref in  (* 计算Noeuds的数量 *)
-  lst_nombre_Noeud := !lst_nombre_Noeud @ [count];  (* 仅添加Noeuds的数量到列表 *)
+  let _ = compressionParArbre arbre_grand_nombre_ref in  
+  let count = count_noeuds !arbre_grand_nombre_ref in 
+  lst_nombre_Noeud := !lst_nombre_Noeud @ [count];  
 done;;
 
-(* 将Noeuds的数量列表保存到CSV文件中 *)
-(* 定义一个函数来将 int list 保存到 CSV 文件中 *)
+
 let save_list_to_csv filename lst =
   let oc = open_out filename in
-  Printf.fprintf oc "NombreDeNoeuds\n"; (* CSV头部 *)
+  Printf.fprintf oc "NombreDeNoeuds\n"; 
   List.iter (fun count ->
     Printf.fprintf oc "%d\n" count
   ) lst;
   close_out oc;;
 
-(* 调用函数保存CSV文件 *)
+
 let csv_filename = "nombre_noeuds.csv";;
 save_list_to_csv csv_filename !lst_nombre_Noeud;;
 
