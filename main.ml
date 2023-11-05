@@ -133,10 +133,10 @@ let rec cut_bool_lst count lst tmp_lst =
 
 (* Q1.3 | 
   description : renvoie une liste de n element
-    tronquée jusqu'a n premiers element ou completé jusqu'a n avec des false
-  parametre : bool_lst liste boolean a tronquée ou a completé
+    tronquee jusqu'a n premiers element ou complete jusqu'a n avec des false
+  parametre : bool_lst liste boolean a tronquee ou a complete
   parametre : n entier
-  return : liste boolean tronquée ou completé de taille n
+  return : liste boolean tronquee ou complete de taille n
 *)
 let completion bool_lst n =
   let taille = List.length bool_lst in
@@ -206,10 +206,10 @@ let composition bool_lst : bigInteger =
 
 (********************************************************************************************************************)
 (* Q1.5 |
-  description : table de verité, prendre un entier64 'x', le decompose en base 2, le complete pour faire la taille n
+  description : table de verite, prendre un entier64 'x', le decompose en base 2, le complete pour faire la taille n
   param x : entier64 (bigInteger)
-  param n : taille qu'aura la table de verité
-  return : liste boolean (la table de verité)
+  param n : taille qu'aura la table de verite
+  return : liste boolean (la table de verite)
 *)
 let table x n = completion (decomposition x) n;;
 
@@ -665,32 +665,24 @@ let save_to_dot_file_c filename arbre =
 (*
 CompressionParListe : 
 
-Complexité Temporelle :
-Pour chaque nœud, l'algorithme calcule un grand_entier, ce qui nécessite de parcourir l'ensemble de l'arbre, donc la complexité est de O(n), où n est le nombre de nœuds dans l'arbre.
-La fonction recherche_ldv, dans le pire des cas, doit parcourir la liste ldv entière. Si la longueur de ldv est m, alors la complexité de cette fonction est O(m).
-Pour chaque nœud, l'algorithme peut avoir besoin d'appeler récursivement lui-même deux fois (une fois pour le sous-arbre gauche et une fois pour le sous-arbre droit).
-Ainsi, la complexité temporelle totale de l'algorithme est de O(n^2 * m). Cela est dû au fait que pour chaque nœud, nous pourrions avoir à parcourir l'ensemble de l'arbre et à rechercher dans toute la liste ldv.
+Nous supposons qu'un Arbre a n nœuds. Pour chaque nœud d'Arbre, nous devons le comparer avec les éléments de listDejaVu. 
+Nous supposons qu'il y a m nœuds dans listDejaVu.
+Parmi les opérations ci-dessus, la complexité temporelle du parcours de tous les nœuds est O(n), 
+et la complexité temporelle du parcours de tous les éléments de listDejaVu est O(m). 
+Par conséquent, la complexité temporelle de compressionParListe est O(n*m).
 
-Complexité Memoire :
-La principale consommation d'espace provient de la liste ldv et de la table de hachage node_map. Dans le pire des cas, la taille de ces deux peut atteindre n.
-Par conséquent, la complexité spatiale est de O(n).
 
 CompressionParArbre:
 
-Complexité Temporelle :
-Similaire à compressionParListe, pour chaque nœud, l'algorithme calcule un grand_entier, ce qui nécessite de parcourir l'ensemble de l'arbre, donc la complexité est de O(n).
-La complexité de la fonction recherche_ldv est de O(1), car elle est toujours appelée sur une liste vide.
-Pour chaque nœud, l'algorithme peut avoir besoin d'appeler récursivement lui-même deux fois.
-Ainsi, la complexité temporelle totale de l'algorithme est de O(n^2).
+Nous supposons qu'un Arbre a n nœuds. Dans le pire des cas, nous devons parcourir chaque point, 
+ce qui signifie qu'aucune opération de compression ne peut être effectuée. 
+Dans ce cas, la complexité temporelle de notre opération est O(n).
 
-Complexité Memoire :
-Cet algorithme n'utilise pas la liste ldv, donc la principale consommation d'espace provient de la pile d'appels récursifs.
-Par conséquent, la complexité spatiale est de O(n).
 
 Conclusion :
 
-La complexité temporelle de compressionParListe est de O(n^2 * m) et la complexité spatiale est de O(n).
-La complexité temporelle de compressionParArbre est de O(n^2) et la complexité spatiale est de O(n).
+La complexite temporelle de compressionParListe est de O(n * m) et la complexite spatiale est de O(n).
+La complexite temporelle de compressionParArbre est de O(n) et la complexite spatiale est de O(n).
 *)
 
 (*************************************************************************)
