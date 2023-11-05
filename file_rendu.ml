@@ -103,15 +103,6 @@ let decomposition (lst:bigInteger) =
 
 
 
-let rec print_int64_list lst =
-  match lst with
-  | [] -> ()
-  | [x] -> print_endline (Int64.to_string x)
-  | x :: xs -> 
-      print_string (Int64.to_string x);
-      print_string "; ";
-      print_int64_list xs
-;;
 
 
 
@@ -426,34 +417,9 @@ let rec compressionParListe (arbre: arbre) ldv =
 ;;
 
 
-(* Test *)
-let rec print_node n =
-  match n with
-  | Feuille(b) -> Printf.printf "%b" !b
-  | Noeud(l, v, r) -> 
-      Printf.printf "("; 
-      print_node !l; 
-      Printf.printf ", %d, " v; 
-      print_node !r;
-      Printf.printf ")"
 
 
-let print_listDejaVu_element (lst, n) =
-  print_int64_list lst;
-  Printf.printf " : ";
-  print_node n
 
-let print_listDejaVu l =
-  let rec aux = function
-      | [] -> ()
-      | [x] -> print_listDejaVu_element x
-      | x :: xs -> 
-          print_listDejaVu_element x; 
-          Printf.printf "\n"; 
-          aux xs
-  in
-  aux l;
-  print_newline ();;
 
 
 (********************************************************************************************************************)
@@ -786,6 +752,46 @@ let csv_filename = "nombre_noeuds.csv";;
 save_list_to_csv csv_filename !lst_nombre_Noeud;;
 
 (* ================================================================== Fonction de affichage des tests*)
+let rec print_int64_list lst =
+  match lst with
+  | [] -> ()
+  | [x] -> print_string (Int64.to_string x)
+  | x :: xs -> 
+      print_string (Int64.to_string x);
+      print_string "; ";
+      print_int64_list xs
+;;
+
+let rec print_node n =
+  match n with
+  | Feuille(b) -> Printf.printf "%b" !b
+  | Noeud(l, v, r) -> 
+      Printf.printf "("; 
+      print_node !l; 
+      Printf.printf ", %d, " v; 
+      print_node !r;
+      Printf.printf ")"
+;;
+
+let print_listDejaVu_element (lst, n) =
+  print_int64_list lst;
+  Printf.printf " : ";
+  print_node n
+;;
+
+let print_listDejaVu l =
+  let rec aux = function
+      | [] -> ()
+      | [x] -> print_listDejaVu_element x
+      | x :: xs -> 
+          print_listDejaVu_element x; 
+          Printf.printf "\n"; 
+          aux xs
+  in
+  aux l;
+  print_newline ()
+;;
+
 (* affichage pour le dev *)
 let print_int64_list list =
   let string_of_int64_elems elems =
@@ -815,6 +821,8 @@ let rec print_bool_list = function
       print_string "; "; (* 打印元素之间的分隔符 *)
       print_bool_list xs (* 递归地打印剩余的list *)
 ;;
+
+
 (**************************************************************************************)
 (*======================================= TEST =======================================*)
 (**************************************************************************************)
@@ -953,6 +961,8 @@ let root, ldv = compressionParListe compressionParListe_arbre_25899 [];;
 Printf.printf "ListeDejaVu apres compressionParListe : \n";;
 print_listDejaVu ldv;;
 Printf.printf "\n";;
+Printf.printf "L'arbre entier64 25899 apres compressionParListe : \n";;
+print_arbre root;;
 (********************************)
 (* fin TEST compressionParListe *)
 (********************************)
