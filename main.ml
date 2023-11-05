@@ -663,36 +663,34 @@ let save_to_dot_file_c filename arbre =
 (* 5.19 *)
 
 (*
-compressionParListe
-时间复杂性：
+CompressionParListe : 
 
-对于每个节点，算法都会计算grand_entier，这需要遍历整个树，因此复杂性为O(n)，其中n为树的节点数。
-recherche_ldv函数在最坏的情况下需要遍历整个ldv列表。假设ldv的长度为m，则该函数的复杂性为O(m)。
-对于每个节点，算法都可能需要递归地调用自身两次（一次对左子树，一次对右子树）。
-综上，算法的总时间复杂性为O(n^2 * m)。这是因为对于每个节点，我们都可能需要遍历整个树并搜索整个ldv列表。
+Complexité Temporelle :
+Pour chaque nœud, l'algorithme calcule un grand_entier, ce qui nécessite de parcourir l'ensemble de l'arbre, donc la complexité est de O(n), où n est le nombre de nœuds dans l'arbre.
+La fonction recherche_ldv, dans le pire des cas, doit parcourir la liste ldv entière. Si la longueur de ldv est m, alors la complexité de cette fonction est O(m).
+Pour chaque nœud, l'algorithme peut avoir besoin d'appeler récursivement lui-même deux fois (une fois pour le sous-arbre gauche et une fois pour le sous-arbre droit).
+Ainsi, la complexité temporelle totale de l'algorithme est de O(n^2 * m). Cela est dû au fait que pour chaque nœud, nous pourrions avoir à parcourir l'ensemble de l'arbre et à rechercher dans toute la liste ldv.
 
-空间复杂性：
+Complexité Memoire :
+La principale consommation d'espace provient de la liste ldv et de la table de hachage node_map. Dans le pire des cas, la taille de ces deux peut atteindre n.
+Par conséquent, la complexité spatiale est de O(n).
 
-主要的空间消耗来自于ldv列表和node_map哈希表。在最坏的情况下，这两者的大小都可能达到n。
-因此，空间复杂性为O(n)。
+CompressionParArbre:
 
-compressionParArbre
-时间复杂性：
+Complexité Temporelle :
+Similaire à compressionParListe, pour chaque nœud, l'algorithme calcule un grand_entier, ce qui nécessite de parcourir l'ensemble de l'arbre, donc la complexité est de O(n).
+La complexité de la fonction recherche_ldv est de O(1), car elle est toujours appelée sur une liste vide.
+Pour chaque nœud, l'algorithme peut avoir besoin d'appeler récursivement lui-même deux fois.
+Ainsi, la complexité temporelle totale de l'algorithme est de O(n^2).
 
-与compressionParListe类似，对于每个节点，算法都会计算grand_entier，这需要遍历整个树，因此复杂性为O(n)。
-recherche_ldv函数的复杂性为O(1)，因为它总是在一个空列表上调用。
-对于每个节点，算法都可能需要递归地调用自身两次。
-综上，算法的总时间复杂性为O(n^2)。
+Complexité Memoire :
+Cet algorithme n'utilise pas la liste ldv, donc la principale consommation d'espace provient de la pile d'appels récursifs.
+Par conséquent, la complexité spatiale est de O(n).
 
-空间复杂性：
+Conclusion :
 
-该算法不使用ldv列表，因此主要的空间消耗来自于递归调用栈。
-因此，空间复杂性为O(n)。
-
-结论：
-
-compressionParListe的时间复杂性为O(n^2 * m)和空间复杂性为O(n)。
-compressionParArbre的时间复杂性为O(n^2)和空间复杂性为O(n)。
+La complexité temporelle de compressionParListe est de O(n^2 * m) et la complexité spatiale est de O(n).
+La complexité temporelle de compressionParArbre est de O(n^2) et la complexité spatiale est de O(n).
 *)
 
 (*************************************************************************)
