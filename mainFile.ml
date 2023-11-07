@@ -374,7 +374,7 @@ let gauche_moitier_false lst =
 let rec compressionParListe (arbre: arbre) ldv = 
   match arbre with
   | Feuille b -> 
-    let grand_entier = composition (liste_feuilles arbre) in
+    let grand_entier = composition (liste_feuilles arbre) in            (* On va fire recherche pour toues les noeuds, c'est O(n^2) *)
     let boolean_recherche, lst_tuple_recherche = recherche_ldv grand_entier ldv in
 
     (* pas dans ldv, ajout *)
@@ -518,16 +518,16 @@ type arbreDejaVu = arbre
 let compressionParArbre (arbre: arbre ref) = 
   let rec aux arbre_ref =
     match !arbre_ref with
-    | Feuille b -> 
+    | Feuille b -> Feuille b(*
       let grand_entier = composition (liste_feuilles !arbre_ref) in
       let boolean_recherche, _ = recherche_ldv grand_entier [] in
 
       if boolean_recherche = false then 
         Feuille b
       else
-        Feuille b
+        Feuille b*)
 
-    | Noeud(filsGauche, prof , filsDroite) ->
+    | Noeud(filsGauche, prof , filsDroite) ->                     (* O(n^2) *)
       let transformed_node = liste_feuilles !arbre_ref in
       let gauche_false = gauche_moitier_false transformed_node in
 
